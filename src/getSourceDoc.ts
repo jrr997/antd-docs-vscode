@@ -1,5 +1,6 @@
 import { Octokit } from '@octokit/rest';
 import { ANTD_GITHUB, GITHUB_TOKEN, excludeDirs } from './constant';
+import { saveDocs } from './storage';
 
 const octokit = new Octokit({
   auth: GITHUB_TOKEN
@@ -31,7 +32,7 @@ export const getFileContent = async (owner: string, repo: string, path: string) 
 export const getComponentDirInfos = async () => {
   try {
     console.log(4123);
-    
+
     const response = await getAntdContent('/components');
     const { data } = response;
     console.log(4444, data);
@@ -45,6 +46,13 @@ export const getComponentDirInfos = async () => {
   }
 };
 
+type DocsLang = 'zh-CN' | 'en-US';
+interface DocsMap {
+  [componentName: string]: {
+    [K in DocsLang]?: string;
+  }
+}
+
 export const fetchDoc = async () => {
   const dirInfos = await getComponentDirInfos();
   const zhPromises = dirInfos
@@ -53,16 +61,23 @@ export const fetchDoc = async () => {
     ?.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.EN_DOC_NAME}`));
   try {
     const res = await Promise.allSettled([...zhPromises!, ...enPromises!]);
+    let docsMap: DocsMap = {};
     const docsContents = res
       .filter((item) => item.status === 'fulfilled')
-      .map((item: any) => {
+      .forEach((item: any) => {
         // FIXME: ts
         const { path, encoding, content, name } = item.value.data;
         const parsedContent = Buffer.from(content, encoding).toString();
         console.log(parsedContent);
         const componentName = path.split('/')[1];
-        const lang = name.split('.')[1];
+        const lang = name.split('.')[1] as DocsLang;
+        if (!docsMap[componentName]) {
+          docsMap[componentName] = {};
+        }
+        docsMap[componentName][lang] = content;
       });
+      return docsMap;
+    // saveDocs(docsMap);
     console.log('res:', res);
   } catch (e) {
     console.log(e);

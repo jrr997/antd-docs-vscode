@@ -10,7 +10,13 @@ export async function activate(context: vscode.ExtensionContext) {
   // TODO: 根据版本获取文档
   // TODO: 请求前检查文档缓存
   if (versionInWorkspace) {
-    await fetchDoc();
+    const docsMap = await fetchDoc();
+    if (docsMap) {
+      console.log('has docsMap');
+      
+      const workspaceState = context.workspaceState;
+      workspaceState.update('documentData', docsMap);
+    }
     // await getComponentsWithDocsFiles();
   }
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
