@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { fetchDoc } from './getSourceDoc';
+import DocHoverProvider from './docHoverProvider';
 
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -8,34 +9,33 @@ export async function activate(context: vscode.ExtensionContext) {
   const versionInWorkspace = config.get('docVersion');
   console.log('version: ', versionInWorkspace);
   // TODO: 根据版本获取文档
-  // TODO: 请求前检查文档缓存
   if (versionInWorkspace) {
-    const docsMap = await fetchDoc();
-    if (docsMap) {
-      console.log('has docsMap');
-      
-      const workspaceState = context.workspaceState;
-      workspaceState.update('documentData', docsMap);
+    const workspaceState = context.workspaceState;
+    const documentData = workspaceState.get('documentData');
+    // TODO: 存储 documentData 版本，与 versionInWorkspace 比较，不同则提示更新
+    if (documentData) {
+      console.log('docsMap existed!');
+    } else {
+      const docsMap = await fetchDoc();
+      if (docsMap) {
+        console.log('fetch Doc complete!');
+        workspaceState.update('documentData', docsMap);
+      }
     }
-    // await getComponentsWithDocsFiles();
   }
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "antd-doc" is now active!');
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
+  console.log('Congratulations, your extension "antd-doc" is now active!');
+
   let setVersion = vscode.commands.registerCommand('AntdDoc.setVersion', async () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
+    // The code you place here will be executed every time your command is executed
+    // Display a message box to the user
     const inputVersion = await vscode.window.showInputBox({
       title: `Antd Doc Version(${versionInWorkspace} currently)`,
       placeHolder: '4.x, 5.x, 5.6.1 ...', // TODO: a better placeholder
     });
     // TODO: validate version before update
     // TODO: change workspace setting
-    await config.update('docVersion', inputVersion );
-	});
+    await config.update('docVersion', inputVersion);
+  });
 
   let listener = vscode.workspace.onDidChangeConfiguration(event => {
     if (event.affectsConfiguration('AntdDoc.docVersion')) {
@@ -45,7 +45,11 @@ export async function activate(context: vscode.ExtensionContext) {
       vscode.window.showInformationMessage(`Version changed! Antd Doc version is "${newVersion}"`);
     }
   });
-  context.subscriptions.push(setVersion, listener);
+
+  const provider = vscode.languages.registerHoverProvider(['typescript', 'typescriptreact', 'javascript'], new DocHoverProvider()) ;
+
+  context.subscriptions.push(setVersion, listener, provider );
 }
+
 
 

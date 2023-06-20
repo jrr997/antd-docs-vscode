@@ -1,6 +1,5 @@
 import { Octokit } from '@octokit/rest';
 import { ANTD_GITHUB, GITHUB_TOKEN, excludeDirs } from './constant';
-import { saveDocs } from './storage';
 
 const octokit = new Octokit({
   auth: GITHUB_TOKEN
@@ -20,9 +19,6 @@ export const getFileContent = async (owner: string, repo: string, path: string) 
       repo: repo,
       path: path,
     });
-    // 文件内容将在 response.data.content 中进行 Base64 编码
-    // const content = Buffer.from(response.data, 'base64').toString();
-    // console.log(content);
     return response.data;
   } catch (error) {
     console.error("Error retrieving file content:", error);
@@ -31,14 +27,11 @@ export const getFileContent = async (owner: string, repo: string, path: string) 
 
 export const getComponentDirInfos = async () => {
   try {
-    console.log(4123);
-
     const response = await getAntdContent('/components');
     const { data } = response;
-    console.log(4444, data);
     if (Array.isArray(data)) {
       const componentDirInfos = data.filter(item => item.type === 'dir');
-      console.log('getComponentDirInfos: ', componentDirInfos);
+      // console.log('getComponentDirInfos: ', componentDirInfos);
       return componentDirInfos;
     }
   } catch (e) {
@@ -62,13 +55,11 @@ export const fetchDoc = async () => {
   try {
     const res = await Promise.allSettled([...zhPromises!, ...enPromises!]);
     let docsMap: DocsMap = {};
-    const docsContents = res
-      .filter((item) => item.status === 'fulfilled')
+    res.filter((item) => item.status === 'fulfilled')
       .forEach((item: any) => {
         // FIXME: ts
         const { path, encoding, content, name } = item.value.data;
         const parsedContent = Buffer.from(content, encoding).toString();
-        console.log(parsedContent);
         const componentName = path.split('/')[1];
         const lang = name.split('.')[1] as DocsLang;
         if (!docsMap[componentName]) {
@@ -76,9 +67,7 @@ export const fetchDoc = async () => {
         }
         docsMap[componentName][lang] = content;
       });
-      return docsMap;
-    // saveDocs(docsMap);
-    console.log('res:', res);
+    return docsMap;
   } catch (e) {
     console.log(e);
 
@@ -100,7 +89,6 @@ export const getComponentsWithDocsFiles = async () => {
     let componentsWithoutDocsFiles: string[] = [];
     try {
       const res = await Promise.all(promises);
-      console.log(res);
       if (Array.isArray(res)) {
         res.forEach(item => {
           if (Array.isArray(item.data)) {
