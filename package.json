@@ -46,7 +46,9 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
+    "@types/babel__traverse": "^7.20.1",
     "@types/glob": "^8.1.0",
+    "@types/mdast": "^3.0.11",
     "@types/mocha": "^10.0.1",
     "@types/node": "20.2.5",
     "@types/vscode": "^1.79.0",
@@ -62,6 +64,13 @@
     "webpack-cli": "^5.1.1"
   },
   "dependencies": {
-    "@octokit/rest": "^19.0.11"
+    "@babel/parser": "^7.22.5",
+    "@babel/traverse": "^7.22.5",
+    "@octokit/rest": "^19.0.11",
+    "remark-gfm": "^3.0.1",
+    "remark-parse": "^10.0.2",
+    "remark-stringify": "^10.0.3",
+    "unified": "^10.1.2",
+    "unist-util-visit": "^4.1.2"
   }
 }

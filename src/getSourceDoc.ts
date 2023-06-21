@@ -1,5 +1,6 @@
 import { Octokit } from '@octokit/rest';
 import { ANTD_GITHUB, GITHUB_TOKEN, excludeDirs } from './constant';
+import { DocsLang, DocsMap } from './types';
 
 const octokit = new Octokit({
   auth: GITHUB_TOKEN
@@ -39,12 +40,7 @@ export const getComponentDirInfos = async () => {
   }
 };
 
-type DocsLang = 'zh-CN' | 'en-US';
-interface DocsMap {
-  [componentName: string]: {
-    [K in DocsLang]?: string;
-  }
-}
+
 
 export const fetchDoc = async () => {
   const dirInfos = await getComponentDirInfos();
@@ -65,7 +61,7 @@ export const fetchDoc = async () => {
         if (!docsMap[componentName]) {
           docsMap[componentName] = {};
         }
-        docsMap[componentName][lang] = content;
+        docsMap[componentName][lang] = parsedContent;
       });
     return docsMap;
   } catch (e) {

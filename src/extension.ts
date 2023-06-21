@@ -1,25 +1,34 @@
 import * as vscode from 'vscode';
 import { fetchDoc } from './getSourceDoc';
-import DocHoverProvider from './docHoverProvider';
-
+import { parseDoc } from  './parseDoc';
+import DocsHoverProvider from './docHoverProvider';
+import { DocsLang } from './types';
 
 export async function activate(context: vscode.ExtensionContext) {
   // 获取插件的设置对象
+  // const parsedDoc = parseDoc();
   const config = vscode.workspace.getConfiguration('AntdDoc');
   const versionInWorkspace = config.get('docVersion');
   console.log('version: ', versionInWorkspace);
   // TODO: 根据版本获取文档
   if (versionInWorkspace) {
     const workspaceState = context.workspaceState;
+    // workspaceState.update('documentData',  undefined);
     const documentData = workspaceState.get('documentData');
     // TODO: 存储 documentData 版本，与 versionInWorkspace 比较，不同则提示更新
     if (documentData) {
       console.log('docsMap existed!');
+      console.log(documentData);
+      
+      // const parsedDoc = parseDoc(documentData);
+
     } else {
       const docsMap = await fetchDoc();
       if (docsMap) {
-        console.log('fetch Doc complete!');
-        workspaceState.update('documentData', docsMap);
+        console.log('fetch Doc successfully!');
+        const parsedDoc = parseDoc(docsMap);
+        // TODO: 解析md，只存储有用信息
+        workspaceState.update('documentData', parsedDoc);
       }
     }
   }
@@ -46,7 +55,7 @@ export async function activate(context: vscode.ExtensionContext) {
     }
   });
 
-  const provider = vscode.languages.registerHoverProvider(['typescript', 'typescriptreact', 'javascript'], new DocHoverProvider()) ;
+  const provider = vscode.languages.registerHoverProvider(['typescript', 'typescriptreact', 'javascript'], new DocsHoverProvider(context)) ;
 
   context.subscriptions.push(setVersion, listener, provider );
 }

@@ -10,3 +10,7 @@ export const ANTD_GITHUB = {
 export const excludeDirs = ['__tests__', '_util', 'back-top', 'col', 'locale', 'row', 'style', 'theme', 'version'];
 
 
+export const DOC_LANG = {
+  ZH: 'zh-CN',
+  EN: 'en-US',
+} as const;
