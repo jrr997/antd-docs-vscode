@@ -9,17 +9,22 @@ export interface DocsMap {
   }
 }
 
+export interface ParsedComponentProperty {
+  type: string;
+  description: string;
+  default: string;
+  version: string;
+}
+
 export interface ParsedComponent {
-  apiMD: string;
+  mdTable: string;
   properties: {
-    name: string;
-    description: string;
-    default: string;
+    [key: string]: ParsedComponentProperty;
   }
 }
 
 export interface ParsedDocs {
   [componentName: string]: {
-    [K in DocsLang]?: ParsedComponent;
+    [K in DocsLang]: ParsedComponent;
   }
 }

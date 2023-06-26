@@ -30,6 +30,11 @@
           "type": "string",
           "default": "5.0.0",
           "description": "The Antd version of your program"
+        },
+        "AntdDoc.language": {
+          "type": "['en-US', 'zh-CN']",
+          "default": "en-US",
+          "description": "docs language"
         }
       }
     }
@@ -46,6 +51,7 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
+    "@babel/types": "^7.22.5",
     "@types/babel__traverse": "^7.20.1",
     "@types/glob": "^8.1.0",
     "@types/mdast": "^3.0.11",

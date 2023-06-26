@@ -1,4 +1,4 @@
-import { DocsLang, DocsMap } from "./types";
+import { DocsLang, DocsMap, ParsedComponentProperty, ParsedDocs } from "./types";
 import { unified } from 'unified';
 import parse from 'remark-parse';
 import stringify from 'remark-stringify';
@@ -12,7 +12,7 @@ export const parseDoc = (docsMap: DocsMap) => {
   // 提供你要查找的标题
   const targetTitle = 'API';
   const processor = unified().use(parse).use(remarkGfm).use(stringify);
-  const parsedDocsMap = {};
+  const parsedDocsMap: any = {};
   const createTpl = () => ({
     [DOC_LANG.ZH]: undefined,
     [DOC_LANG.EN]: undefined,
@@ -46,10 +46,29 @@ export const parseDoc = (docsMap: DocsMap) => {
         // 如果找到匹配的表格节点，则进行相应的处理
         // console.log(foundTable);
         const mdTable = processor.stringify(foundTable);
+        // TODO: 存储每一行
+        const propertyRows = (foundTable as unknown as Table).children.slice(1);
+        const propertyMap = propertyRows.reduce <Record<string, ParsedComponentProperty>>((obj, row) => {
+          const [property, description, type, _default , version] = row.children.map(tableCell => {
+            const value = tableCell.children.filter(item => item.type === 'text').map((item) => (item as Text).value).join(',');
+            return value;
+            // if (value === undefined) {
+            //   console.log(tableCell, foundTable);
+            // }
+          });
+          obj[property] = {
+            // property,
+            description,
+            type,
+            version,
+            default: _default,
+          };
+          return obj;
+        }, {});
         parsedDocsMap[componentName][lang] = {
-          mdTable
+          mdTable,
+          propertyMap
         };
-        // console.log(compiledTable);
       } else {
         console.log('Table not found: ', componentName);
       }

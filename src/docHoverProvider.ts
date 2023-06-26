@@ -3,13 +3,17 @@ import { HoverProvider, TextDocument, Position, Hover, ProviderResult, Token } f
 import * as parser from '@babel/parser';
 import traverse from "@babel/traverse";
 import * as vscode from 'vscode';
+import { DocsLang, ParsedDocs } from './types';
+import { getComponentNameByJSXAttribute } from './utils';
 
 
 // 自定义 HoverProvider 类
 export default class DocsHoverProvider implements HoverProvider {
   private context: vscode.ExtensionContext;
-  constructor(context: vscode.ExtensionContext) {
+  private language: DocsLang;
+  constructor(context: vscode.ExtensionContext, language: string | undefined) {
     this.context = context;
+    this.language = language === DocsLang.ZH ? language : DocsLang.EN;
   }
   provideHover(document: TextDocument, position: Position, token: Token): ProviderResult<Hover> {
     if (token.isCancellationRequested) { return; }
@@ -29,7 +33,7 @@ export default class DocsHoverProvider implements HoverProvider {
     console.log('positionToFind:', positionToFind);
 
     const antdImportedComponents = new Set<string>();
-    const context = this.context;
+    let that = this;
     let markdownText: string = '';
     traverse(ast, {
       ImportDeclaration: (path) => {
@@ -53,19 +57,22 @@ export default class DocsHoverProvider implements HoverProvider {
           // 找到匹配位置的节点
           // console.log('Found Node:', node.type);
           // console.log('Node Value:', node);
+          const parseName = (name: string) => name.toLowerCase();
           if (node.type === 'JSXIdentifier') {
             const { name } = node;
-            const parseName = (name: string) => name.toLowerCase();
             const parsedName = parseName(name);
-            const workspaceState = context.workspaceState;
-            const documentData = workspaceState.get('documentData');
-            const mdTable = documentData[parsedName]['zh-CN'].mdTable;
+            const workspaceState = that.context.workspaceState;
+            const documentData = workspaceState.get('documentData') as ParsedDocs;
+            const mdTable = documentData[parsedName][that.language].mdTable;
             console.log(documentData,mdTable);
             markdownText = mdTable;
             return; 
             // TODO: 显示组件API
           } else if (node.type === 'JSXAttribute') {
+            const componentName = getComponentNameByJSXAttribute(path);
+            if (componentName && antdImportedComponents.has(componentName.split('.')[0])) {
 
+            }
           }
         }
       },
