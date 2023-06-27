@@ -13,7 +13,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // TODO: 根据版本获取文档
   if (versionInWorkspace) {
     const workspaceState = context.workspaceState;
-    workspaceState.update('documentData',  undefined);
+    // workspaceState.update('documentData',  undefined);
     const documentData = workspaceState.get('documentData');
     // TODO: 存储 documentData 版本，与 versionInWorkspace 比较，不同则提示更新
     if (documentData) {
@@ -27,12 +27,10 @@ export async function activate(context: vscode.ExtensionContext) {
       if (docsMap) {
         console.log('fetch Doc successfully!');
         const parsedDoc = parseDoc(docsMap);
-        // TODO: 解析md，只存储有用信息
         workspaceState.update('documentData', parsedDoc);
       }
     }
   }
-  console.log('Congratulations, your extension "antd-doc" is now active!');
 
   let setVersion = vscode.commands.registerCommand('AntdDoc.setVersion', async () => {
     // The code you place here will be executed every time your command is executed

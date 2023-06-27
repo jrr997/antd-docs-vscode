@@ -67,7 +67,7 @@ export const parseDoc = (docsMap: DocsMap) => {
         }, {});
         parsedDocsMap[componentName][lang] = {
           mdTable,
-          propertyMap
+          properties: propertyMap
         };
       } else {
         console.log('Table not found: ', componentName);

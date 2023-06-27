@@ -16,3 +16,7 @@ export function getComponentNameByJSXAttribute(path: NodePath<t.Node>): string |
     return componentName;
   }
 }
+
+export function isComponent(name: string) {
+  return name[0].toLowerCase() !== name[0];
+}
