@@ -49,7 +49,8 @@ export const parseDoc = (docsMap: DocsMap) => {
         const mdTable = processor.stringify(foundTable);
         const propertyRows = (foundTable as unknown as Table).children.slice(1);
         const propertyMap = propertyRows.reduce <Record<string, ParsedComponentProperty>>((obj, row) => {
-          const [property, description, type, _default , version] = row.children.map(tableCell => {
+          const property = row.children[0].children[0].value;
+          const [description, type, _default , version] = row.children.slice(1).map(tableCell => {
             // const value = tableCell.children.filter(item => {
             //   tableCellType.add(item.type);
             //   return ['text', 'inlineCode'].includes(item.type);
