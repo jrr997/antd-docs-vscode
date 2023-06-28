@@ -13,7 +13,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // TODO: 根据版本获取文档
   if (versionInWorkspace) {
     const workspaceState = context.workspaceState;
-    // workspaceState.update('documentData',  undefined);
+    workspaceState.update('documentData',  undefined);
     const documentData = workspaceState.get('documentData');
     // TODO: 存储 documentData 版本，与 versionInWorkspace 比较，不同则提示更新
     if (documentData) {

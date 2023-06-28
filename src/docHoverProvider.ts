@@ -59,6 +59,11 @@ export default class DocsHoverProvider implements HoverProvider {
             } else { // property
               const componentName = getComponentNameByJSXAttribute(path);
               if (componentName && antdImportedComponents.has(componentName.split('.')[0])) {
+                console.log(name);
+                const p = documentData[parseName(componentName)][that.language].properties;
+                console.log(p);
+                console.log(p?.[name]);
+                
                 const propertyInfo = documentData[parseName(componentName)][that.language].properties?.[name];
                 markdownText = getPropertyHoverMd(propertyInfo, that.language);
               }
@@ -69,6 +74,8 @@ export default class DocsHoverProvider implements HoverProvider {
     });
 
     if (markdownText) {
+      console.log(markdownText);
+      
       return new Hover(markdownText);
     }
   }

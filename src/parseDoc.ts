@@ -17,6 +17,7 @@ export const parseDoc = (docsMap: DocsMap) => {
     [DOC_LANG.ZH]: undefined,
     [DOC_LANG.EN]: undefined,
   });
+  let tableCellType = new Set();
   for (const [componentName, value] of Object.entries(docsMap)) {
     parsedDocsMap[componentName] = createTpl();
 
@@ -46,16 +47,20 @@ export const parseDoc = (docsMap: DocsMap) => {
         // 如果找到匹配的表格节点，则进行相应的处理
         // console.log(foundTable);
         const mdTable = processor.stringify(foundTable);
-        // TODO: 存储每一行
         const propertyRows = (foundTable as unknown as Table).children.slice(1);
         const propertyMap = propertyRows.reduce <Record<string, ParsedComponentProperty>>((obj, row) => {
           const [property, description, type, _default , version] = row.children.map(tableCell => {
-            const value = tableCell.children.filter(item => item.type === 'text').map((item) => (item as Text).value).join(',');
-            return value;
-            // if (value === undefined) {
-            //   console.log(tableCell, foundTable);
-            // }
+            // const value = tableCell.children.filter(item => {
+            //   tableCellType.add(item.type);
+            //   return ['text', 'inlineCode'].includes(item.type);
+            // }).map((item) => (item as Text).value).join(',');
+            // return value;
+            return processor.stringify(tableCell);
           });
+          if (description === '设置按钮类型') {
+            console.log(row);
+
+          }
           obj[property] = {
             // property,
             description,
@@ -71,11 +76,11 @@ export const parseDoc = (docsMap: DocsMap) => {
         };
       } else {
         console.log('Table not found: ', componentName);
-      }
+      }      
     }
   }
   console.log('parsedDocsMap:', parsedDocsMap);
-  
+  console.log('tableCellType: ', tableCellType);
   return parsedDocsMap;
 };
 
