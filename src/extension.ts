@@ -9,11 +9,12 @@ export async function activate(context: vscode.ExtensionContext) {
   // const parsedDoc = parseDoc();
   const config = vscode.workspace.getConfiguration('AntdDoc');
   const versionInWorkspace = config.get('docVersion');
-  const languageInWorkspace = config.get('language');
+  const languageInWorkspace = config.get('language') as string | undefined;
   // TODO: 根据版本获取文档
   if (versionInWorkspace) {
     const workspaceState = context.workspaceState;
-    workspaceState.update('documentData',  undefined);
+    // For debugging docs fetching and parsing, please do not remove it.
+    // workspaceState.update('documentData',  undefined);
     const documentData = workspaceState.get('documentData');
     // TODO: 存储 documentData 版本，与 versionInWorkspace 比较，不同则提示更新
     if (documentData) {
@@ -23,6 +24,7 @@ export async function activate(context: vscode.ExtensionContext) {
       // const parsedDoc = parseDoc(documentData);
 
     } else {
+      console.log('fetching Docs!');
       const docsMap = await fetchDoc();
       if (docsMap) {
         console.log('fetch Doc successfully!');

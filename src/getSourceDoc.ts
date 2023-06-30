@@ -32,7 +32,6 @@ export const getComponentDirInfos = async () => {
     const { data } = response;
     if (Array.isArray(data)) {
       const componentDirInfos = data.filter(item => item.type === 'dir');
-      // console.log('getComponentDirInfos: ', componentDirInfos);
       return componentDirInfos;
     }
   } catch (e) {
@@ -53,7 +52,6 @@ export const fetchDoc = async () => {
     let docsMap: DocsMap = {};
     res.filter((item) => item.status === 'fulfilled')
       .forEach((item: any) => {
-        // FIXME: ts
         const { path, encoding, content, name } = item.value.data;
         const parsedContent = Buffer.from(content, encoding).toString();
         const componentName = path.split('/')[1];

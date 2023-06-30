@@ -1,10 +1,20 @@
-import { HoverProvider, TextDocument, Position, Hover, ProviderResult, Token } from 'vscode';
+import { HoverProvider, TextDocument, Position, Hover, ProviderResult, CancellationToken } from 'vscode';
 import * as parser from '@babel/parser';
-import traverse from "@babel/traverse";
+import traverse, { Node } from "@babel/traverse";
 import * as vscode from 'vscode';
 import { DocsLang, ParsedComponentProperty, ParsedDocs } from './types';
 import { getComponentNameByJSXAttribute, isComponent } from './utils';
 
+const IsNodeAtPosition = (node: Node, position: Position): boolean => {
+  const positionToFind = {
+    line: position.line + 1, // position.line starts from 0
+    column: position.character
+  };
+  return !!(node.loc &&
+    node.loc.start.line === positionToFind.line &&
+    node.loc.start.column <= positionToFind.column &&
+    node.loc.end.column >= positionToFind.column);
+};
 
 export default class DocsHoverProvider implements HoverProvider {
   private context: vscode.ExtensionContext;
@@ -15,67 +25,68 @@ export default class DocsHoverProvider implements HoverProvider {
     this.language = language === DocsLang.ZH ? language : DocsLang.EN;
   }
 
-  provideHover(document: TextDocument, position: Position, token: Token): ProviderResult<Hover> {
+  provideHover(document: TextDocument, position: Position, token: CancellationToken): ProviderResult<Hover> {
     if (token.isCancellationRequested) { return; }
     const ast = parser.parse(document.getText(), {
       sourceType: "module",
       plugins: ['typescript', 'jsx']
     });
 
-    const positionToFind = {
-      line: position.line + 1, // position.line starts from 0
-      column: position.character
-    };
     const antdImportedComponents = new Set<string>();
     let that = this;
-    let markdownText: string  | vscode.MarkdownString = '';
+    let markdownText: string | vscode.MarkdownString = '';
+
+    const workspaceState = that.context.workspaceState;
+    const documentData = workspaceState.get('documentData') as ParsedDocs;
 
     traverse(ast, {
       ImportDeclaration: (path) => {
         if (path.node.source.value === 'antd') {
           const specifiers = path.node.specifiers;
           specifiers.map(specifier => {
-            const componentName = specifier.local.name;
+            const componentName = specifier.local.name.toLowerCase();
             antdImportedComponents.add(componentName);
           });
         }
       },
-      JSXIdentifier(path) {
+      JSXAttribute(path) {
         const { node } = path;
-        if (
-          node.loc &&
-          node.loc.start.line === positionToFind.line &&
-          node.loc.start.column <= positionToFind.column &&
-          node.loc.end.column >= positionToFind.column
-        ) {
-          const workspaceState = that.context.workspaceState;
-          const documentData = workspaceState.get('documentData') as ParsedDocs;
-          const parseName = (name: string) => name.toLowerCase();
-            const { name } = node;
-            const parsedName = parseName(name);
-            if (isComponent(name)) {
-              const mdTable = documentData[parsedName][that.language].mdTable;
-              markdownText = mdTable;
-            } else { // property
-              const componentName = getComponentNameByJSXAttribute(path);
-              if (componentName && antdImportedComponents.has(componentName.split('.')[0])) {
-                console.log(name);
-                const p = documentData[parseName(componentName)][that.language].properties;
-                console.log(p);
-                console.log(p?.[name]);
-                
-                const propertyInfo = documentData[parseName(componentName)][that.language].properties?.[name];
-                markdownText = getPropertyHoverMd(propertyInfo, that.language);
-              }
-
+        if (IsNodeAtPosition(node, position)) {
+          if (node.name.type === 'JSXIdentifier') {
+            const attributeName = node.name.name;
+            const componentName = getComponentNameByJSXAttribute(path);
+            if (componentName && antdImportedComponents.has(componentName.split('.')[0].toLowerCase())) {
+              const propertyInfo = documentData[componentName.toLowerCase()][that.language].properties?.[attributeName];
+              markdownText = getPropertyHoverMd(propertyInfo, that.language);
+              console.log(attributeName);
             }
+          }
         }
       },
+      JSXOpeningElement(path) {
+        const { node } = path;
+        if (IsNodeAtPosition(node, position)) {
+          let componentName: string = '';
+          if (node.name.type === 'JSXIdentifier') {
+            componentName = node.name.name.toLowerCase();
+          } else if (node.name.type === 'JSXMemberExpression') {
+            const { object, property } = node.name;
+            if (object.type === 'JSXIdentifier') {
+              const subName = property.name;
+              const name = object.name;
+              componentName = `${name.toLowerCase()}.${subName.toLowerCase()}`;
+            }
+          }
+          if (componentName && antdImportedComponents.has(componentName.split('.')[0])) {
+            console.log(componentName);
+            const mdTable = documentData[componentName][that.language].mdTable;
+            markdownText = mdTable;
+          }
+        }
+      }
     });
 
     if (markdownText) {
-      console.log(markdownText);
-      
       return new Hover(markdownText);
     }
   }
