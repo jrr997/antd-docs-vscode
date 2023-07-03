@@ -1,7 +1,7 @@
 import { NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
 
-export function getComponentNameByJSXAttribute(path: NodePath<t.Node>): string | undefined {
+export function getComponentNameFromJSXAttribute(path: NodePath<t.Node>): string | undefined {
   const jsxElement = path.findParent(p => t.isJSXElement(p.node));
   if (jsxElement) {
     const openingElement = (jsxElement.node as t.JSXElement).openingElement;
@@ -19,4 +19,17 @@ export function getComponentNameByJSXAttribute(path: NodePath<t.Node>): string |
 
 export function isComponent(name: string) {
   return name[0].toLowerCase() !== name[0];
+}
+
+export function getComponentNameFromOpeningJSXElement(node: t.JSXOpeningElement): string {
+  const getName = (node: t.JSXIdentifier | t.JSXMemberExpression, pre = ''): string => {
+    if (node.type === 'JSXIdentifier') {
+      return pre ? `${pre}.${node.name}` : node.name;
+    } else {
+      const { object, property } = node;
+      const subName = property.name;
+      return `${getName(object, pre)}.${subName}`;
+    }
+  };
+  return getName(node.name as t.JSXIdentifier | t.JSXMemberExpression);
 }

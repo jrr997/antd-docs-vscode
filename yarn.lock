@@ -232,9 +232,9 @@
   integrity sha512-TWFX7cZF2LXoCvdmJWY7XVPi74aSY0+FfBZNSXEXFkMpjcqsQwDSYVv5FhRFaI0V1ECnwbz4j59T/G+rXNWaIQ==
 
 "@octokit/core@^4.2.1":
-  version "4.2.1"
-  resolved "https://registry.npmmirror.com/@octokit/core/-/core-4.2.1.tgz#fee6341ad0ce60c29cc455e056cd5b500410a588"
-  integrity sha512-tEDxFx8E38zF3gT7sSMDrT1tGumDgsw5yPG6BBh/X+5ClIQfMH/Yqocxz1PnHx6CHyF6pxmovUTOfZAUvQ0Lvw==
+  version "4.2.4"
+  resolved "https://registry.npmmirror.com/@octokit/core/-/core-4.2.4.tgz#d8769ec2b43ff37cc3ea89ec4681a20ba58ef907"
+  integrity sha512-rYKilwgzQ7/imScn3M9/pFfUf4I1AZEH3KhyJmtPdE2zfaXAn2mFfUy4FbKewzc2We5y/LlKLj36fWJLKC2SIQ==
   dependencies:
     "@octokit/auth-token" "^3.0.0"
     "@octokit/graphql" "^5.0.0"
@@ -297,9 +297,9 @@
     once "^1.4.0"
 
 "@octokit/request@^6.0.0":
-  version "6.2.6"
-  resolved "https://registry.npmmirror.com/@octokit/request/-/request-6.2.6.tgz#ff8f503c690f84e3ebd33d2d43e63c0a27ac50e0"
-  integrity sha512-T/waXf/xjie8Qn5IyFYAcI/HXvw9SPkcQWErGP9H471IWRDRCN+Gn/QOptPMAZRT4lJb2bLHxQfCXjU0mJRyng==
+  version "6.2.8"
+  resolved "https://registry.npmmirror.com/@octokit/request/-/request-6.2.8.tgz#aaf480b32ab2b210e9dadd8271d187c93171d8eb"
+  integrity sha512-ow4+pkVQ+6XVVsekSYBzJC0VTVvh/FCTUUgTsboGq+DTeWdyIFV8WSCdo0RIxk6wSkBTHqIK1mYuY7nOBXOchw==
   dependencies:
     "@octokit/endpoint" "^7.0.0"
     "@octokit/request-error" "^3.0.0"
@@ -309,9 +309,9 @@
     universal-user-agent "^6.0.0"
 
 "@octokit/rest@^19.0.11":
-  version "19.0.11"
-  resolved "https://registry.npmmirror.com/@octokit/rest/-/rest-19.0.11.tgz#2ae01634fed4bd1fca5b642767205ed3fd36177c"
-  integrity sha512-m2a9VhaP5/tUw8FwfnW2ICXlXpLPIqxtg3XcAiGMLj/Xhw3RSBfZ8le/466ktO1Gcjr8oXudGnHhxV1TXJgFxw==
+  version "19.0.13"
+  resolved "https://registry.npmmirror.com/@octokit/rest/-/rest-19.0.13.tgz#e799393264edc6d3c67eeda9e5bd7832dcf974e4"
+  integrity sha512-/EzVox5V9gYGdbAI+ovYj3nXQT1TtTHRT+0eZPcuC05UFSWO3mdO9UY1C0i2eLF9Un1ONJkAk+IEtYGAC+TahA==
   dependencies:
     "@octokit/core" "^4.2.1"
     "@octokit/plugin-paginate-rest" "^6.1.2"
@@ -2178,9 +2178,9 @@ neo-async@^2.6.2:
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
 node-fetch@^2.6.7:
-  version "2.6.11"
-  resolved "https://registry.npmmirror.com/node-fetch/-/node-fetch-2.6.11.tgz#cde7fc71deef3131ef80a738919f999e6edfff25"
-  integrity sha512-4I6pdBY1EthSqDmJkiNk3JIT8cswwR9nfeW/cPdUagJYEQG7R95WRH74wpz7ma8Gh/9dI9FP+OU+0E4FvtA55w==
+  version "2.6.12"
+  resolved "https://registry.npmmirror.com/node-fetch/-/node-fetch-2.6.12.tgz#02eb8e22074018e3d5a83016649d04df0e348fba"
+  integrity sha512-C/fGU2E8ToujUivIO0H+tpQ6HWo4eEmchoPIoXtxCrVghxdKq+QOHqEZW7tuP3KlV3bC8FRMO5nMCC7Zm1VP6g==
   dependencies:
     whatwg-url "^5.0.0"
 

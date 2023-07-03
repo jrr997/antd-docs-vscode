@@ -6,7 +6,7 @@ const octokit = new Octokit({
   auth: GITHUB_TOKEN
 });
 
-const getAntdContent = (path: string, ref?: string) => octokit.repos.getContent({
+const getAntdContent = (path: string, ref?: string) => octokit.rest.repos.getContent({
   owner: ANTD_GITHUB.OWNER,
   repo: ANTD_GITHUB.REPO,
   path,
@@ -15,7 +15,7 @@ const getAntdContent = (path: string, ref?: string) => octokit.repos.getContent(
 
 export const getFileContent = async (owner: string, repo: string, path: string) => {
   try {
-    const response = await octokit.repos.getContent({
+    const response = await octokit.rest.repos.getContent({
       owner: owner,
       repo: repo,
       path: path,
@@ -80,7 +80,7 @@ export const getComponentsWithDocsFiles = async () => {
     const componentDirInfos = dirInfos.filter(item => item.type === 'dir');
     // 检查是否有md文档
     const promises = componentDirInfos.map((item) => {
-      return octokit.repos.getContent({
+      return octokit.rest.repos.getContent({
         owner: ANTD_GITHUB.OWNER,
         repo: ANTD_GITHUB.REPO,
         path: item.path,

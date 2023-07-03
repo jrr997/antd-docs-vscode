@@ -22,7 +22,8 @@ export const parseDoc = (docsMap: DocsMap) => {
   for (const [name, value] of Object.entries(docsMap)) {
     const parseConfig = getComponentParseConfig(name);
     for (const { name: componentName, heading } of parseConfig) {
-      parsedDocsMap[componentName] = createTpl();
+      const formattedComponentName = componentName.replaceAll('-', '');
+      parsedDocsMap[formattedComponentName] = createTpl();
 
       for (const [lang, rawDocs] of Object.entries(value)) {
         const tree = processor.parse(rawDocs);
@@ -30,14 +31,15 @@ export const parseDoc = (docsMap: DocsMap) => {
 
         visit(tree, 'heading', (node, index, parent) => {
           if (foundTable) { return; };
-          if (node.children[0].type === 'text' && node.children[0].value === heading) {
+          if (node.children[0].type === 'text' && handleHeading(heading).includes(node.children[0].value)) {
             const nextTable = parent?.children.slice(index!).filter(item => item.type === 'table')[0] as Table;
             foundTable = nextTable;
           }
         });
+
         if (foundTable) {
           const parsedComponent = parseComponentTable(foundTable, processor);
-          parsedDocsMap[componentName][lang] = parsedComponent;
+          parsedDocsMap[formattedComponentName][lang] = parsedComponent;
         } else {
           console.log('Table not found: ', componentName);
         }
@@ -70,5 +72,7 @@ const parseComponentTable = (table: Table, processor: any): ParsedComponent => {
     properties: propertyMap
   };
 };
+
+const handleHeading = (heading: string | string[]) => Array.isArray(heading) ? heading : [heading];
 
 

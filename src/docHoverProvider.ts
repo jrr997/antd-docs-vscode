@@ -3,7 +3,7 @@ import * as parser from '@babel/parser';
 import traverse, { Node } from "@babel/traverse";
 import * as vscode from 'vscode';
 import { DocsLang, ParsedComponentProperty, ParsedDocs } from './types';
-import { getComponentNameByJSXAttribute, isComponent } from './utils';
+import { getComponentNameFromJSXAttribute, getComponentNameFromOpeningJSXElement, isComponent } from './utils';
 
 const IsNodeAtPosition = (node: Node, position: Position): boolean => {
   const positionToFind = {
@@ -52,9 +52,11 @@ export default class DocsHoverProvider implements HoverProvider {
       JSXAttribute(path) {
         const { node } = path;
         if (IsNodeAtPosition(node, position)) {
+          console.log(node);
+          
           if (node.name.type === 'JSXIdentifier') {
             const attributeName = node.name.name;
-            const componentName = getComponentNameByJSXAttribute(path);
+            const componentName = getComponentNameFromJSXAttribute(path);
             if (componentName && antdImportedComponents.has(componentName.split('.')[0].toLowerCase())) {
               const propertyInfo = documentData[componentName.toLowerCase()][that.language].properties?.[attributeName];
               markdownText = getPropertyHoverMd(propertyInfo, that.language);
@@ -66,17 +68,18 @@ export default class DocsHoverProvider implements HoverProvider {
       JSXOpeningElement(path) {
         const { node } = path;
         if (IsNodeAtPosition(node.name, position)) {
-          let componentName: string = '';
-          if (node.name.type === 'JSXIdentifier') {
-            componentName = node.name.name.toLowerCase();
-          } else if (node.name.type === 'JSXMemberExpression') {
-            const { object, property } = node.name;
-            if (object.type === 'JSXIdentifier') {
-              const subName = property.name;
-              const name = object.name;
-              componentName = `${name.toLowerCase()}.${subName.toLowerCase()}`;
-            }
-          }
+          // let componentName: string = '';
+          // if (node.name.type === 'JSXIdentifier') {
+          //   componentName = node.name.name.toLowerCase();
+          // } else if (node.name.type === 'JSXMemberExpression') {
+          //   const { object, property } = node.name;
+          //   if (object.type === 'JSXIdentifier') {
+          //     const subName = property.name;
+          //     const name = object.name;
+          //     componentName = `${name.toLowerCase()}.${subName.toLowerCase()}`;
+          //   }
+          // }
+          let componentName = getComponentNameFromOpeningJSXElement(node).toLowerCase();
           if (componentName && antdImportedComponents.has(componentName.split('.')[0])) {
             console.log(componentName);
             const mdTable = documentData[componentName][that.language].mdTable;

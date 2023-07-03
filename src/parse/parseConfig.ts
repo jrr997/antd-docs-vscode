@@ -1,6 +1,6 @@
 export interface ComponentParseConfig {
   name: string; // name will be stored in docsMap, which is always lowercase.
-  heading: string; // md heading text before target table
+  heading: string | string[]; // md heading text before target table
 }
 
 export interface ParseConfigMap {
@@ -119,7 +119,7 @@ export const parseConfigMap: ParseConfigMap = {
     {
       name: 'radio.group',
       // TODO: zh 是'Radio.Group' 而 en 是 RadioGroup
-      heading: 'Radio.Group',
+      heading: ['Radio.Group', 'RadioGroup'],
     },
   ],
   timepicker: [
