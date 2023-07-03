@@ -31,7 +31,7 @@ export default class DocsHoverProvider implements HoverProvider {
       sourceType: "module",
       plugins: ['typescript', 'jsx']
     });
-
+    
     const antdImportedComponents = new Set<string>();
     let that = this;
     let markdownText: string | vscode.MarkdownString = '';
@@ -65,7 +65,7 @@ export default class DocsHoverProvider implements HoverProvider {
       },
       JSXOpeningElement(path) {
         const { node } = path;
-        if (IsNodeAtPosition(node, position)) {
+        if (IsNodeAtPosition(node.name, position)) {
           let componentName: string = '';
           if (node.name.type === 'JSXIdentifier') {
             componentName = node.name.name.toLowerCase();
