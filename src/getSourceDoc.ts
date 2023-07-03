@@ -50,6 +50,10 @@ export const fetchDoc = async () => {
   try {
     const res = await Promise.allSettled([...zhPromises!, ...enPromises!]);
     let docsMap: DocsMap = {};
+    res.filter((item) => item.status !== 'fulfilled').forEach(item => {
+      console.log(item.reason.message);
+    });
+    
     res.filter((item) => item.status === 'fulfilled')
       .forEach((item: any) => {
         const { path, encoding, content, name } = item.value.data;
@@ -61,6 +65,8 @@ export const fetchDoc = async () => {
         }
         docsMap[componentName][lang] = parsedContent;
       });
+    console.log(docsMap);
+      
     return docsMap;
   } catch (e) {
     console.log(e);

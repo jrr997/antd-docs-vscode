@@ -1,51 +1,12 @@
-import { DocsLang, DocsMap, ParsedComponentProperty, ParsedDocs, ParsedComponent } from "./types";
+import { DocsLang, DocsMap, ParsedComponentProperty, ParsedDocs, ParsedComponent } from "../types";
 import { unified } from 'unified';
 import parse from 'remark-parse';
 import stringify from 'remark-stringify';
 import { visit } from 'unist-util-visit';
 import remarkGfm, { Root } from 'remark-gfm';
 import { Heading, Parent, Table, Text } from "mdast";
-import { DOC_LANG } from "./constant";
-
-interface ComponentParseConfig {
-  name: string;
-  heading: string;
-}
-
-const getComponentParseConfig = (componentName: string): ComponentParseConfig[] => {
-  if (componentName === 'typography') {
-    return [
-      {
-        name: 'typography.text',
-        heading: 'Typography.Text',
-      },
-      {
-        name: 'typography.title',
-        heading: 'Typography.Title',
-      },
-      {
-        name: 'typography.paragraph',
-        heading: 'Typography.Paragraph',
-      }
-    ];
-  } else if (componentName === 'grid') {
-    return [
-      {
-        name: 'row',
-        heading: 'Row',
-      },
-      {
-        name: 'col',
-        heading: 'Col',
-      },
-    ];
-  } else {
-    return [{
-      name: componentName,
-      heading: 'API'
-    }];
-  }
-};
+import { DOC_LANG } from "../constant";
+import { getComponentParseConfig } from './getComponentParseConfig';
 
 export const parseDoc = (docsMap: DocsMap) => {
 

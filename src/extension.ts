@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { fetchDoc } from './getSourceDoc';
-import { parseDoc } from  './parseDoc';
+import { parseDoc } from  './parse/parseDoc';
 import DocsHoverProvider from './docHoverProvider';
 import { DocsLang } from './types';
 
@@ -13,8 +13,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // TODO: 根据版本获取文档
   if (versionInWorkspace) {
     const workspaceState = context.workspaceState;
-    // For debugging docs fetching and parsing, please do not remove it.
-    // workspaceState.update('documentData',  undefined);
+    workspaceState.update('documentData',  undefined); // For debugging docs fetching and parsing, please do not remove it.
     const documentData = workspaceState.get('documentData');
     // TODO: 存储 documentData 版本，与 versionInWorkspace 比较，不同则提示更新
     if (documentData) {
@@ -25,6 +24,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     } else {
       console.log('fetching Docs!');
+      console.log('docs version: ' + versionInWorkspace);
       const docsMap = await fetchDoc();
       if (docsMap) {
         console.log('fetch Doc successfully!');
