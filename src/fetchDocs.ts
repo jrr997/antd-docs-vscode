@@ -41,18 +41,18 @@ export const getComponentDirInfos = async () => {
 
 
 
-export const fetchDoc = async () => {
+export const fetchDoc = async (ref?: string) => {
   const dirInfos = await getComponentDirInfos();
   const zhPromises = dirInfos
-    ?.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.ZH_DOC_NAME}`));
+    ?.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.ZH_DOC_NAME}`, ref));
   const enPromises = dirInfos
-    ?.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.EN_DOC_NAME}`));
+    ?.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.EN_DOC_NAME}`, ref));
   try {
     const res = await Promise.allSettled([...zhPromises!, ...enPromises!]);
     let docsMap: DocsMap = {};
-    res.filter((item) => item.status !== 'fulfilled').forEach(item => {
-      console.log(item.reason.message);
-    });
+    // res.filter((item) => item.status !== 'fulfilled').forEach(item => {
+    //   console.log('fail: ', item);
+    // });
     
     res.filter((item) => item.status === 'fulfilled')
       .forEach((item: any) => {

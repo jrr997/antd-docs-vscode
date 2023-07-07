@@ -1,63 +1,69 @@
 import * as vscode from 'vscode';
-import { fetchDoc } from './getSourceDoc';
-import { parseDoc } from  './parse/parseDoc';
+import { fetchDoc } from './fetchDocs';
+import { parseDoc } from './parse/parseDocs';
 import DocsHoverProvider from './docHoverProvider';
-import { DocsLang } from './types';
+import { ParsedDocsState } from './types';
+import { validateVersion } from './utils';
 
 export async function activate(context: vscode.ExtensionContext) {
-  // 获取插件的设置对象
-  // const parsedDoc = parseDoc();
+  const workspaceState = context.workspaceState;
   const config = vscode.workspace.getConfiguration('AntdDoc');
-  const versionInWorkspace = config.get('docVersion');
+  const versionInWorkspace = config.get('docVersion') as string | undefined;
   const languageInWorkspace = config.get('language') as string | undefined;
-  // TODO: 根据版本获取文档
-  if (versionInWorkspace) {
-    const workspaceState = context.workspaceState;
-    // workspaceState.update('documentData',  undefined); // For debugging docs fetching and parsing, please do not remove it.
-    const documentData = workspaceState.get('documentData');
-    // TODO: 存储 documentData 版本，与 versionInWorkspace 比较，不同则提示更新
-    if (documentData) {
-      console.log('docsMap existed!');
-      console.log(documentData);
-      
-      // const parsedDoc = parseDoc(documentData);
 
-    } else {
-      console.log('fetching Docs!');
-      console.log('docs version: ' + versionInWorkspace);
-      const docsMap = await fetchDoc();
-      if (docsMap) {
-        console.log('fetch Doc successfully!');
-        const parsedDoc = parseDoc(docsMap);
-        workspaceState.update('documentData', parsedDoc);
-      }
+
+  const fetchAndParseDocs = async (version: string) => {
+    console.log('Fetching Docs!');
+    console.log('docs version: ' + version);
+
+    const docsMap = await fetchDoc(version);
+    if (docsMap) {
+      console.log('fetch Doc successfully!');
+      const parsedDocs = parseDoc(docsMap);
+      workspaceState.update('documentData', { parsedDocs, version });
+    }
+  };
+  console.log('versionInWorkspace: ', versionInWorkspace);
+
+  if (versionInWorkspace) {
+    // workspaceState.update('documentData',  undefined); // For debugging docs fetching and parsing, please do not remove it.
+    const documentData = workspaceState.get('documentData') as ParsedDocsState;
+    if (documentData && versionInWorkspace === documentData.version) {
+      console.log('docsMap existed!', documentData);
+    } else if (validateVersion(versionInWorkspace)) {
+      fetchAndParseDocs(versionInWorkspace);
     }
   }
 
   let setVersion = vscode.commands.registerCommand('AntdDoc.setVersion', async () => {
-    // The code you place here will be executed every time your command is executed
-    // Display a message box to the user
     const inputVersion = await vscode.window.showInputBox({
       title: `Antd Doc Version(${versionInWorkspace} currently)`,
-      placeHolder: '4.x, 5.x, 5.6.1 ...', // TODO: a better placeholder
+      placeHolder: '4.0.0, 5.6.1...', // TODO: a better placeholder
     });
-    // TODO: validate version before update
-    // TODO: change workspace setting
-    await config.update('docVersion', inputVersion);
-  });
-
-  let listener = vscode.workspace.onDidChangeConfiguration(event => {
-    if (event.affectsConfiguration('AntdDoc.docVersion')) {
-      // 执行相应操作
-      const config = vscode.workspace.getConfiguration('AntdDoc');
-      const newVersion = config.get('docVersion');
-      vscode.window.showInformationMessage(`Version changed! Antd Doc version is "${newVersion}"`);
+    if (validateVersion(inputVersion)) {
+      config.update('docVersion', inputVersion);
+      vscode.window.showInformationMessage(`Version changed! Start to update docs v${inputVersion}`);
+      fetchAndParseDocs(inputVersion!);
+    } else {
+      vscode.window.showInformationMessage(`Failed! Version ${inputVersion} is invalid.`);
     }
   });
 
-  const provider = vscode.languages.registerHoverProvider(['typescript', 'typescriptreact', 'javascript'], new DocsHoverProvider(context, languageInWorkspace)) ;
+  // let listener = vscode.workspace.onDidChangeConfiguration(event => {
+  //   if (event.affectsConfiguration('AntdDoc.docVersion')) {
+  //     const config = vscode.workspace.getConfiguration('AntdDoc');
+  //     const newVersion = config.get('docVersion') as string;
+  //     if (validateVersion(newVersion)) {
+  //       config.update('docVersion', newVersion);
+  //       vscode.window.showInformationMessage(`Version changed! Antd Docs version is "${newVersion}"`);
+  //       fetchAndParseDocs(newVersion);
+  //     }
+  //   }
+  // });
 
-  context.subscriptions.push(setVersion, listener, provider );
+  const provider = vscode.languages.registerHoverProvider(['typescript', 'typescriptreact', 'javascript'], new DocsHoverProvider(context, languageInWorkspace));
+
+  context.subscriptions.push(setVersion, provider);
 }
 
 

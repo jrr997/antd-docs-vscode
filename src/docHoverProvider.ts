@@ -2,7 +2,7 @@ import { HoverProvider, TextDocument, Position, Hover, ProviderResult, Cancellat
 import * as parser from '@babel/parser';
 import traverse, { Node } from "@babel/traverse";
 import * as vscode from 'vscode';
-import { DocsLang, ParsedComponentProperty, ParsedDocs } from './types';
+import { DocsLang, ParsedComponentProperty, ParsedDocsMap, ParsedDocsState } from './types';
 import { getComponentNameFromJSXAttribute, getComponentNameFromOpeningJSXElement, isComponent } from './utils';
 
 const IsNodeAtPosition = (node: Node, position: Position): boolean => {
@@ -37,8 +37,9 @@ export default class DocsHoverProvider implements HoverProvider {
     let markdownText: string | vscode.MarkdownString = '';
 
     const workspaceState = that.context.workspaceState;
-    const documentData = workspaceState.get('documentData') as ParsedDocs;
-
+    const documentData = workspaceState.get('documentData') as ParsedDocsState;
+    const parsedDocsMap = documentData.parsedDocs;
+    
     traverse(ast, {
       ImportDeclaration: (path) => {
         if (path.node.source.value === 'antd') {
@@ -58,7 +59,7 @@ export default class DocsHoverProvider implements HoverProvider {
             const attributeName = node.name.name;
             const componentName = getComponentNameFromJSXAttribute(path);
             if (componentName && antdImportedComponents.has(componentName.split('.')[0].toLowerCase())) {
-              const propertyInfo = documentData[componentName.toLowerCase()][that.language].properties?.[attributeName];
+              const propertyInfo = parsedDocsMap[componentName.toLowerCase()][that.language]!.properties?.[attributeName];
               markdownText = getPropertyHoverMd(propertyInfo, that.language);
               console.log(attributeName);
             }
@@ -68,21 +69,10 @@ export default class DocsHoverProvider implements HoverProvider {
       JSXOpeningElement(path) {
         const { node } = path;
         if (IsNodeAtPosition(node.name, position)) {
-          // let componentName: string = '';
-          // if (node.name.type === 'JSXIdentifier') {
-          //   componentName = node.name.name.toLowerCase();
-          // } else if (node.name.type === 'JSXMemberExpression') {
-          //   const { object, property } = node.name;
-          //   if (object.type === 'JSXIdentifier') {
-          //     const subName = property.name;
-          //     const name = object.name;
-          //     componentName = `${name.toLowerCase()}.${subName.toLowerCase()}`;
-          //   }
-          // }
           let componentName = getComponentNameFromOpeningJSXElement(node).toLowerCase();
           if (componentName && antdImportedComponents.has(componentName.split('.')[0])) {
             console.log(componentName);
-            const mdTable = documentData[componentName][that.language].mdTable;
+            const mdTable = parsedDocsMap[componentName][that.language]!.mdTable;
             markdownText = mdTable;
           }
         }

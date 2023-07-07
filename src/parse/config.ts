@@ -1,13 +1,11 @@
-export interface ComponentParseConfig {
-  name: string; // name will be stored in docsMap, which is always lowercase.
-  heading: string | string[]; // md heading text before target table
-}
+import { ComponentParseConfig } from "../types";
+import { datePickerParser } from "./parseUtil";
+
 
 export interface ParseConfigMap {
   [componentName: string]: ComponentParseConfig[];
 }
 
-// TODO: version
 export const parseConfigMap: ParseConfigMap = {
   typography: [
     {
@@ -46,7 +44,7 @@ export const parseConfigMap: ParseConfigMap = {
   space: [
     {
       name: 'space',
-      heading: 'Space'
+      heading: 'API'
     },
     //  antd@4.24.0
     {
@@ -64,9 +62,28 @@ export const parseConfigMap: ParseConfigMap = {
       heading: 'Dropdown.Button'
     },
   ],
-  // TODO: Checkbox.group是API后的第二个表格
+  checkbox: [
+    {
+      name: 'checkbox',
+      heading: 'API'
+    },
+    {
+      name: 'checkbox.group',
+      heading: 'API',
+      index: 1
+    },
+  ],
+
   // TODO: DatePicker的picker属性不同时API不同，且与RangePicker有共用表格
-  // TODO: Button属性不同时API不同
+  "date-picker": [
+    {
+      name: 'datepicker',
+      parser: datePickerParser,
+    }, {
+      name: 'rangepicker',
+      parser: datePickerParser
+    }
+  ],
   form: [
     {
       name: 'form',
@@ -118,11 +135,10 @@ export const parseConfigMap: ParseConfigMap = {
     },
     {
       name: 'radio.group',
-      // TODO: zh 是'Radio.Group' 而 en 是 RadioGroup
       heading: ['Radio.Group', 'RadioGroup'],
     },
   ],
-  timepicker: [
+  "time-picker": [
     {
       name: 'timepicker',
       heading: 'API',
@@ -136,7 +152,7 @@ export const parseConfigMap: ParseConfigMap = {
   avatar: [
     {
       name: 'avatar',
-      heading: 'Avatar',
+      heading: ['Avatar', 'API'],
     },
     //4.5.0+
     {
@@ -147,7 +163,7 @@ export const parseConfigMap: ParseConfigMap = {
   badge: [
     {
       name: 'badge',
-      heading: 'Badge',
+      heading: ['Badge', 'API'],
     },
     //4.5.0+
     {
@@ -207,7 +223,11 @@ export const parseConfigMap: ParseConfigMap = {
       name: 'statistic',
       heading: 'API',
     },
-    // TODO: Statistic.Countdown无countdown
+    {
+      name: 'statistic.countdown',
+      heading: 'API',
+      index: 1,
+    },
   ],
   tabs: [
     {
@@ -215,9 +235,9 @@ export const parseConfigMap: ParseConfigMap = {
       heading: 'Tabs',
     },
     {
-      name: 'tabs.item',
-      heading: 'TabItemType',
-    },
+      name: 'tabs.tabPane',
+      heading: 'Tabs.TabPane'
+    }
   ],
   tag: [
     {
@@ -236,15 +256,14 @@ export const parseConfigMap: ParseConfigMap = {
     },
     {
       name: 'timeline.item',
-      heading: 'Items'
+      heading: ['Items', 'Timeline.Item']
     },
   ],
-  // TODO: tooltip无heading
-  // TODO: tree共用
+  // TODO: tooltip无heading,应显示API下所有内容
   tree: [
     {
       name: 'tree',
-      heading: 'Tree props'
+      heading: 'API'
     },
     {
       name: 'directorytree',
@@ -261,7 +280,7 @@ export const parseConfigMap: ParseConfigMap = {
       heading: 'Alert.ErrorBoundary'
     }
   ],
-  // TODO:  Progress type不同table不同
+  // TODO:  Progress type不同table不同，应显示API下所有内容
   'float-button': [
     {
       name: 'float-button',

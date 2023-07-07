@@ -33,3 +33,11 @@ export function getComponentNameFromOpeningJSXElement(node: t.JSXOpeningElement)
   };
   return getName(node.name as t.JSXIdentifier | t.JSXMemberExpression);
 }
+
+export function validateVersion(version?: string): boolean  {
+  if (!version) {return false;}
+  let re =  /^\d+\.\d+\.\d+$/;
+  return re.test(version);
+}
+
+export const toArray = (arg: unknown | unknown[]) => Array.isArray(arg) ? arg : [arg];
