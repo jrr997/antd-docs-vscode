@@ -1,0 +1,83 @@
+{
+  "name": "antd-doc",
+  "displayName": "antd doc",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.79.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescriptreact"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "AntdDoc.setVersion",
+        "title": "AntdDoc: Set version for Antd Doc"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Antd Doc",
+      "properties": {
+        "AntdDoc.docVersion": {
+          "type": "string",
+          "default": "5.0.0",
+          "description": "The Antd version of your program"
+        },
+        "AntdDoc.language": {
+          "type": "['en-US', 'zh-CN']",
+          "default": "en-US",
+          "description": "docs language"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@babel/types": "^7.22.5",
+    "@types/babel__traverse": "^7.20.1",
+    "@types/glob": "^8.1.0",
+    "@types/mdast": "^3.0.11",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "20.2.5",
+    "@types/vscode": "^1.79.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.8",
+    "@typescript-eslint/parser": "^5.59.8",
+    "@vscode/test-electron": "^2.3.2",
+    "eslint": "^8.41.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.2.0",
+    "ts-loader": "^9.4.3",
+    "typescript": "^5.1.3",
+    "webpack": "^5.85.0",
+    "webpack-cli": "^5.1.1"
+  },
+  "dependencies": {
+    "@babel/parser": "^7.22.5",
+    "@babel/traverse": "^7.22.5",
+    "@octokit/rest": "^19.0.11",
+    "remark-gfm": "^3.0.1",
+    "remark-parse": "^10.0.2",
+    "remark-stringify": "^10.0.3",
+    "unified": "^10.1.2",
+    "unist-util-select": "^5.0.0",
+    "unist-util-visit": "^4.1.2"
+  }
+}
