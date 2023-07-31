@@ -1,6 +1,6 @@
 {
-  "name": "antd-doc",
-  "displayName": "antd doc",
+  "name": "antd-docs",
+  "displayName": "antd docs",
   "description": "",
   "version": "0.0.1",
   "engines": {
@@ -23,18 +23,22 @@
       }
     ],
     "configuration": {
-      "type": "object",
-      "title": "Antd Doc",
+      "title": "Antd Docs",
       "properties": {
-        "AntdDoc.docVersion": {
+        "AntdDocs.docVersion": {
           "type": "string",
           "default": "5.0.0",
           "description": "The Antd version of your program"
         },
-        "AntdDoc.language": {
+        "AntdDocs.language": {
           "type": "['en-US', 'zh-CN']",
           "default": "en-US",
           "description": "docs language"
+        },
+        "AntdDocs.githubToken": {
+          "type" : "string",
+          "default": "",
+          "description": "Github token used to fetch docs from github"
         }
       }
     }
