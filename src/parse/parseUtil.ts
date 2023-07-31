@@ -1,11 +1,10 @@
 import { DocsLang, DocsMap, ParsedComponentProperty, ParsedDocsMap, ParsedComponent, PendingComponent, CustomParser } from '../types';
-import { Processor, unified } from 'unified';
 import { visit } from 'unist-util-visit';
 import { Heading, Link, Parent, Root, Table, TableRow, Text } from "mdast";
 import { DOC_LANG } from "../constant";
 import { ComponentParseConfig, CommonParseConfig } from '../types';
-import { select, selectAll } from 'unist-util-select';
-import { link } from 'fs';
+import { selectAll } from 'unist-util-select';
+import { TProcessor } from './processor';
 
 export const findHeadingAndTable = (heading: string | string[], root: Root, tableIndex = 0): [Table | null, Heading | null, Parent | null] => {
   let foundHeading: Heading | null = null;
@@ -36,7 +35,7 @@ export const findNodesFromHeadingToTable = (heading: string | string[], root: Ro
 };
 
 // Parse rawDocs for most components. Some components are special and should implement their own parser. 
-export const parseComponent = ({ heading, name: componentName, index: tableIndex = 0, merge }: CommonParseConfig & { heading: string | string[] }, docsMapItem: DocsMap[string], processor: Processor<Root, Root, Root, string>, parsedDocsMap: ParsedDocsMap): PendingComponent => {
+export const parseComponent = ({ heading, name: componentName, index: tableIndex = 0, merge }: CommonParseConfig & { heading: string | string[] }, docsMapItem: DocsMap[string], processor: TProcessor, parsedDocsMap: ParsedDocsMap): PendingComponent => {
   const formattedComponentName = componentName.replaceAll('-', '');
   const pendingComponent: PendingComponent = {
     name: formattedComponentName,
@@ -89,7 +88,6 @@ export const parseComponentTableProperties = (tableRows: TableRow[], processor: 
   return propertyMap;
 };
 
-// TODO: 对Link特殊处理，#开头的自动拼接前缀以打开文档页
 // Parse all properties according to the markdown table.
 export const parseComponentTable = (table: Table, processor: any): ParsedComponent => {
   const propertyMap = parseComponentTableProperties(table.children.slice(1), processor);
