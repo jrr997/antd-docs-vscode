@@ -31,9 +31,12 @@
           "description": "The Antd version of your program"
         },
         "AntdDocs.language": {
-          "type": "['en-US', 'zh-CN']",
+          "enum": [
+            "en-US",
+            "zh-CN"
+          ],
           "default": "en-US",
-          "description": "docs language"
+          "description": "Docs language, en-US or zh-CN, please restart vscode after change this setting",
         },
         "AntdDocs.githubToken": {
           "type" : "string",
