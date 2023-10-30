@@ -3,3 +3,7 @@ node_modules
 /dist
 
 token.ts
+
+.DS_Store
+
+*.log

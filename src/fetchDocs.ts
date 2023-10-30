@@ -1,10 +1,7 @@
 import { Octokit } from '@octokit/rest';
-import { ANTD_GITHUB, GITHUB_TOKEN, excludeDirs } from './constant';
+import { ANTD_GITHUB, excludeDirs } from './constant';
 import { DocsLang, DocsMap } from './types';
-
-// const octokit = new Octokit({
-//   auth: GITHUB_TOKEN
-// });
+import * as vscode from 'vscode';
 
 const getAntdContent = (path: string, token: string, ref?: string) => new Octokit({ auth: token }).rest.repos.getContent({
   owner: ANTD_GITHUB.OWNER,
@@ -15,7 +12,7 @@ const getAntdContent = (path: string, token: string, ref?: string) => new Octoki
 
 export const getFileContent = async (owner: string, repo: string, path: string, token: string) => {
   try {
-    const response = await new Octokit({auth: token}).rest.repos.getContent({
+    const response = await new Octokit({ auth: token }).rest.repos.getContent({
       owner: owner,
       repo: repo,
       path: path,
@@ -34,17 +31,32 @@ export const getComponentDirInfos = async (token: string) => {
       const componentDirInfos = data.filter(item => item.type === 'dir');
       return componentDirInfos;
     }
-  } catch (e) {
+  } catch (e: any) {
     console.error('retrieving component dirs failed: ', e);
+    if (e.status === 401) {
+      console.log('github token invalid');
+      vscode.window.showErrorMessage(
+        "Github token is invalid, please set it correctly and reload this extension.",
+        "Set gitHub token"
+      )
+        .then((action) => {
+          if (action === "Set gitHub token") {
+            vscode.commands.executeCommand("workbench.action.openSettings", "Antd Docs");
+          }
+        });
+    } else {
+      vscode.window.showErrorMessage(e.response.data.message);
+    }
+    return [];
   }
 };
 
 
 
 export const fetchDoc = async (ref: string, token: string) => {
-  const dirInfos = await getComponentDirInfos(token);
+  let dirInfos = await getComponentDirInfos(token);
   const zhPromises = dirInfos
-    ?.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.ZH_DOC_NAME}`,token, ref));
+    ?.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.ZH_DOC_NAME}`, token, ref));
   const enPromises = dirInfos
     ?.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.EN_DOC_NAME}`, token, ref));
   try {
@@ -53,7 +65,7 @@ export const fetchDoc = async (ref: string, token: string) => {
     // res.filter((item) => item.status !== 'fulfilled').forEach(item => {
     //   console.log('fail: ', item);
     // });
-    
+
     res.filter((item) => item.status === 'fulfilled')
       .forEach((item: any) => {
         const { path, encoding, content, name } = item.value.data;
@@ -66,7 +78,7 @@ export const fetchDoc = async (ref: string, token: string) => {
         docsMap[componentName][lang] = parsedContent;
       });
     console.log(docsMap);
-      
+
     return docsMap;
   } catch (e) {
     console.log(e);

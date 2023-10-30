@@ -24,7 +24,7 @@ export function isComponent(name: string) {
   return name[0].toLowerCase() !== name[0];
 }
 
-export function getComponentNameFromOpeningJSXElement(node: t.JSXOpeningElement): string {
+export function getComponentNameFromOpeningOrClosingJSXElement(node: t.JSXOpeningElement | t.JSXClosingElement): string {
   const getName = (node: t.JSXIdentifier | t.JSXMemberExpression, pre = ''): string => {
     if (node.type === 'JSXIdentifier') {
       return pre ? `${pre}.${node.name}` : node.name;

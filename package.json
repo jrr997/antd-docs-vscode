@@ -28,7 +28,7 @@
         "AntdDocs.docVersion": {
           "type": "string",
           "default": "5.0.0",
-          "description": "The Antd version of your program"
+          "description": "The Antd version of your program, please enter a valid version number, such as 4.0.10"
         },
         "AntdDocs.language": {
           "enum": [
@@ -36,12 +36,12 @@
             "zh-CN"
           ],
           "default": "en-US",
-          "description": "Docs language, en-US or zh-CN, please restart vscode after change this setting",
+          "description": "Docs language, en-US or zh-CN, please restart vscode after change this setting"
         },
         "AntdDocs.githubToken": {
           "type" : "string",
           "default": "",
-          "description": "Github token used to fetch docs from github"
+          "description": "This plugin uses github restful API to fetch docs, which has a rate limit of 60 times per hour. If you have a github token, you can set it here to increase the rate limit."
         }
       }
     }

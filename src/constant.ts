@@ -1,5 +1,3 @@
-export { GITHUB_TOKEN } from './token';
-
 export const ANTD_GITHUB = {
   OWNER: 'ant-design',
   REPO: 'ant-design',
