@@ -1,6 +1,6 @@
 # antd-doc README
 
-This is the README for your extension "antd-doc". After writing up a brief description, we recommend including the following sections.
+"antd-doc". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 
