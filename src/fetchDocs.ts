@@ -85,38 +85,3 @@ export const fetchDoc = async (ref: string, token: string) => {
 
   }
 };
-
-// export const getComponentsWithDocsFiles = async (token: string) => {
-//   const dirInfos = await getFileContent(ANTD_GITHUB.OWNER, ANTD_GITHUB.REPO, '/components', token);
-//   if (Array.isArray(dirInfos)) {
-//     const componentDirInfos = dirInfos.filter(item => item.type === 'dir');
-//     // 检查是否有md文档
-//     const promises = componentDirInfos.map((item) => {
-//       return octokit.rest.repos.getContent({
-//         owner: ANTD_GITHUB.OWNER,
-//         repo: ANTD_GITHUB.REPO,
-//         path: item.path,
-//       });
-//     });
-//     let componentsWithoutDocsFiles: string[] = [];
-//     try {
-//       const res = await Promise.all(promises);
-//       if (Array.isArray(res)) {
-//         res.forEach(item => {
-//           if (Array.isArray(item.data)) {
-//             const fileNames = item.data.map(({ name }) => name);
-//             if (!fileNames.includes(ANTD_GITHUB.EN_DOC_NAME) || !fileNames.includes(ANTD_GITHUB.ZH_DOC_NAME)) {
-//               const componentName = item.data[0].path.split('/')[1];
-//               componentsWithoutDocsFiles.push(componentName);
-//             }
-//           }
-//         });
-//       }
-//     } catch (e) {
-//       console.log(e);
-//     }
-//     console.log(componentsWithoutDocsFiles);
-
-//     return componentsWithoutDocsFiles;
-//   }
-// };

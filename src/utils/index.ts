@@ -43,7 +43,7 @@ export function validateVersion(version?: string): boolean {
   return re.test(version);
 }
 
-export const getComponentLink = (componentName: string, version: 'v4' | 'v5', lang: DocsLang, anchor = 'api') => {
+export const getComponentLink = (componentName: string, version: 'v4' | 'v5', lang: DocsLang, anchor = version === 'v4' ? 'API' : 'api') => {
   // Some components'link are not the same with their name. e.g. 'row'/ 'col' -> 'Grid'
   // And some like form.item should link to form
   const componentNameInUrl = Object.entries(parseConfigMap).find(([_, value]) => {

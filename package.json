@@ -27,8 +27,8 @@
       "properties": {
         "AntdDocs.docVersion": {
           "type": "string",
-          "default": "5.0.0",
-          "description": "The Antd version of your program, please enter a valid version number, such as 4.0.10"
+          "default": "5.x",
+          "description": "The Antd version of your program, please enter a valid version, such as 4.0.10"
         },
         "AntdDocs.language": {
           "enum": [
