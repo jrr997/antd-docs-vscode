@@ -48,7 +48,7 @@ export function validateVersion(version?: string): boolean {
 }
 
 export function versionToRef(version: string) {
-  if (version === '3.x') { 
+  if (version === '3.x') {
     return '3.x-stable';
   } else if (version === '4.x') {
     return '4.x-stable';
@@ -78,11 +78,10 @@ export const getUpperCaseName = (componentName: string) => {
 
 const anchorMap = Object.fromEntries(Object.values(parseConfigMap).flatMap(item => item).map(item => [item.name, item?.heading]));
 
-export const getHoverHeader = (componentName: string, version: 'v4' | 'v5', anchor = 'api') => {
-  // TODO: mark down heading which found table successfully, so we can use the correct anchor here.
+export const getHoverHeader = (componentName: string, version: 'v4' | 'v5', anchor = version === 'v4' ? 'API' : 'api') => {
   // Now we fallback to use the anchor 'api' when heading is an array.
   const _anchor = Array.isArray(anchorMap[componentName]) ? undefined : anchorMap[componentName] as string;
-  const formattedAnchor = (_anchor ?? anchor).toLowerCase().replaceAll('.', '');
+  const formattedAnchor = version === 'v4' ? (_anchor ?? anchor).replaceAll('.', '') : (_anchor ?? anchor).toLowerCase().replaceAll('.', '');
   const upperCaseName = getUpperCaseName(componentName);
   const enLink = getComponentLink(componentName, version, DocsLang.EN, formattedAnchor);
   const zhLink = getComponentLink(componentName, version, DocsLang.ZH, formattedAnchor);
