@@ -3,7 +3,7 @@ import { fetchDoc } from './fetchDocs';
 import { parseDoc } from './parse/parseDocs';
 import DocsHoverProvider from './docHoverProvider';
 import { ParsedDocsState } from './types';
-import { validateVersion } from './utils';
+import { validateVersion, versionToRef } from './utils';
 
 export async function activate(context: vscode.ExtensionContext) {
   const workspaceState = context.workspaceState;
@@ -18,10 +18,10 @@ export async function activate(context: vscode.ExtensionContext) {
   }
 
   const fetchAndParseDocs = async (version: string, token: string) => {
+    const ref = versionToRef(version);
     console.log('Fetching Docs!');
-    console.log('docs version: ' + version);
-
-    const docsMap = await fetchDoc(version, token);
+    console.log('docs version: ' + version, ' ref: ' + ref);
+    const docsMap = await fetchDoc(ref, token);
     if (docsMap) {
       console.log('fetch Doc successfully!');
       const parsedDocs = parseDoc(docsMap, version);
@@ -29,14 +29,15 @@ export async function activate(context: vscode.ExtensionContext) {
       return true;
     }
   };
-  console.log('versionInWorkspace: ', versionInWorkspace);
 
   // Fetch docs when github token exists and version is valid
   const shouldFetch = () => {
     const githubToken = config.get('githubToken') as string;
     if (!githubToken) { return false; }
+    // TODO: check the latest version in repo First, then compare to local version to decide whether to fetch 
+    if (versionInWorkspace === '4.x' || versionInWorkspace === '5.x') { return true; }
     const documentData = workspaceState.get('documentData') as ParsedDocsState;
-    if (!documentData?.parsedDocs || !Object.keys(documentData.parsedDocs).length) { return false; }
+    if (!documentData?.parsedDocs || !Object.keys(documentData.parsedDocs).length) { return true; }
     const { version } = documentData;
     return validateVersion(versionInWorkspace) && version !== versionInWorkspace;
   };
@@ -75,14 +76,13 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(setVersion, provider, listener);
 
   // Fetch after subscriptions since it may take a long time and block pushing subscriptions
+  console.log('versionInWorkspace: ', versionInWorkspace);
   if (versionInWorkspace) {
     // workspaceState.update('documentData', undefined); // For debugging docs fetching and parsing, please do not remove it.
-    const documentData = workspaceState.get('documentData') as ParsedDocsState;
-    if (documentData && versionInWorkspace === documentData.version) {
-      console.log('docsMap existed!', documentData);
-      return true;
-    } else if (validateVersion(versionInWorkspace)) {
-      return fetchAndParseDocs(versionInWorkspace, githubToken);
+    if (shouldFetch()) {
+      fetchAndParseDocs(versionInWorkspace, githubToken).catch(err => {
+        console.log(err);
+      });
     }
   }
 }

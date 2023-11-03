@@ -28,7 +28,7 @@
         "AntdDocs.docVersion": {
           "type": "string",
           "default": "5.x",
-          "description": "The Antd version of your program, please enter a valid version, such as 4.0.10"
+          "description": "The Antd version of your program, please input a valid version, such as '4.0.1'. You can input 3.x, 4.x, 5.x to fetch the latest version of the major version."
         },
         "AntdDocs.language": {
           "enum": [

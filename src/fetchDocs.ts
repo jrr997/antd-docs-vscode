@@ -23,9 +23,9 @@ export const getFileContent = async (owner: string, repo: string, path: string, 
   }
 };
 
-export const getComponentDirInfos = async (token: string) => {
+export const getComponentDirInfos = async (token: string, ref: string) => {
   try {
-    const response = await getAntdContent('/components', token);
+    const response = await getAntdContent('/components', token, ref);   
     const { data } = response;
     if (Array.isArray(data)) {
       const componentDirInfos = data.filter(item => item.type === 'dir');
@@ -54,7 +54,7 @@ export const getComponentDirInfos = async (token: string) => {
 
 
 export const fetchDoc = async (ref: string, token: string) => {
-  let dirInfos = await getComponentDirInfos(token);
+  let dirInfos = await getComponentDirInfos(token, ref);
   const zhPromises = dirInfos
     ?.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.ZH_DOC_NAME}`, token, ref));
   const enPromises = dirInfos

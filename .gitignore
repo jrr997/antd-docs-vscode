@@ -7,3 +7,5 @@ token.ts
 .DS_Store
 
 *.log
+
+*.vsix

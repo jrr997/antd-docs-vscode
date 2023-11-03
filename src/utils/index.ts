@@ -1,6 +1,6 @@
 import { NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
-import { ANTD_LINK, DOC_LANG } from '../constant';
+import { ANTD_LINK, DOC_LANG, LATEST_VERSIONS } from '../constant';
 import { DocsLang } from '../types';
 import { parseConfigMap } from '../parse/config';
 
@@ -39,8 +39,24 @@ export function getComponentNameFromOpeningOrClosingJSXElement(node: t.JSXOpenin
 
 export function validateVersion(version?: string): boolean {
   if (!version) { return false; }
+
+  const latestVersions = Object.values(LATEST_VERSIONS);
+  if (latestVersions.includes(version as typeof latestVersions[number])) { return true; };
+
   let re = /^\d+\.\d+\.\d+$/;
   return re.test(version);
+}
+
+export function versionToRef(version: string) {
+  if (version === '3.x') { 
+    return '3.x-stable';
+  } else if (version === '4.x') {
+    return '4.x-stable';
+  } else if (version === '5.x') {
+    return "master";
+  } else {
+    return version;
+  }
 }
 
 export const getComponentLink = (componentName: string, version: 'v4' | 'v5', lang: DocsLang, anchor = version === 'v4' ? 'API' : 'api') => {
