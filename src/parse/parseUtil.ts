@@ -1,7 +1,7 @@
 import { DocsLang, DocsMap, ParsedComponentProperty, ParsedDocsMap, ParsedComponent, PendingComponent, CustomParser } from '../types';
 import { visit } from 'unist-util-visit';
 import { Heading, Link, Parent, Root, Table, TableRow, Text } from "mdast";
-import { DOC_LANG } from "../constant";
+import { ANTD_LINK, DOC_LANG } from "../constant";
 import { ComponentParseConfig, CommonParseConfig } from '../types';
 import { selectAll } from 'unist-util-select';
 import { TProcessor } from './processor';
@@ -254,12 +254,18 @@ export const progressParser: CustomParser = (config, docsMapItem, processor, pen
  * @param prefix antd doc link prefix
  * @returns raw markdown string with correct link
  */
-export const correctMdLink = (mdString: string, processor: any, prefix: string) => {
+export const correctMdLink = (mdString: string, processor: any, prefix: string, lang: string, parsedVersion: 'v4' | 'v5') => {
   const tree = processor.parse(mdString);
   const links = selectAll('link', tree) as Link[];
   links.forEach(link => {
     if (link.url.startsWith('#')) {
-      link.url = prefix + link.url.toLowerCase();
+      link.url = prefix + link.url;
+    } else if (link.url.startsWith('/components/')) {
+      let _link = ANTD_LINK[parsedVersion] + link.url;
+      if (lang === 'zh-CN') {
+        _link = _link.replace(/\/components\/(.*?)\//, '/components/$1-cn/');
+      }
+      link.url = _link;
     }
   });
   return processor.stringify(tree);

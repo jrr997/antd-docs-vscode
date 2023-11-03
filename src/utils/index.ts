@@ -81,6 +81,9 @@ const anchorMap = Object.fromEntries(Object.values(parseConfigMap).flatMap(item 
 export const getHoverHeader = (componentName: string, version: 'v4' | 'v5', anchor = version === 'v4' ? 'API' : 'api') => {
   // Now we fallback to use the anchor 'api' when heading is an array.
   const _anchor = Array.isArray(anchorMap[componentName]) ? undefined : anchorMap[componentName] as string;
+  // Some components'link are not the same with their name. e.g. 'row'/ 'col' -> 'Grid'
+  // and in v5 anchor is not the same with v4
+  // row is 'grid-xx#col' in v5, but 'grid-xx#Col' in v4
   const formattedAnchor = version === 'v4' ? (_anchor ?? anchor).replaceAll('.', '') : (_anchor ?? anchor).toLowerCase().replaceAll('.', '');
   const upperCaseName = getUpperCaseName(componentName);
   const enLink = getComponentLink(componentName, version, DocsLang.EN, formattedAnchor);

@@ -19,7 +19,7 @@ export const parseDoc = (docsMap: DocsMap, version: string) => {
         const parsedComponentValue = parsedComponent.value[lang as DocsLang];
         if (parsedComponentValue) {
           const prefix = getComponentLink(name, parsedVersion, lang as DocsLang, '');
-          parsedComponentValue.mdTable = correctMdLink(parsedComponentValue.mdTable, processor, prefix);
+          parsedComponentValue.mdTable = correctMdLink(parsedComponentValue.mdTable, processor, prefix, lang, parsedVersion);
         }
       }
 
