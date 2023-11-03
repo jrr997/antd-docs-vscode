@@ -154,7 +154,8 @@ export const timePickerParser: CustomParser = (config, docsMapItem, processor, p
     const heading = 'RangePicker';
     const tableNodes = findNodesFromHeadingToTable(heading, tree);
     const table = tableNodes?.find(node => node.type === 'table') as Table;
-    const tableProperties = parseComponentTableProperties(table.children.slice(1), processor);
+    if (!table) {return pendingComponent;};
+    const tableProperties = table ? parseComponentTableProperties(table.children.slice(1), processor) : {};
 
     // datePicker.rangepicker is parsed before datePicker, so we can get common properties from pendingDocsMap.
     // The parsing order depends on the component directory order in antd repo.
