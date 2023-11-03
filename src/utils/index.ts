@@ -53,6 +53,7 @@ export function versionToRef(version: string) {
   } else if (version === '4.x') {
     return '4.x-stable';
   } else if (version === '5.x') {
+    // TODO: get the latest tag to replace master
     return "master";
   } else {
     return version;
