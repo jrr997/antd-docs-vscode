@@ -2,10 +2,11 @@
   "name": "antd-docs",
   "displayName": "antd docs",
   "description": "Read Ant Design docs in vscode",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.79.0"
   },
+  "icon": "logo.png",
   "id": "jrr997",
   "publisher": "jrr997",
   "repository": "https://github.com/jrr997/antd-docs-vscode",
