@@ -1,71 +1,26 @@
-# antd-doc README
+`Antd-docs` is a VSCode plugin that allows you to view the documentation of the `ant-design` component library within VSCode.
 
-This is the README for your extension "antd-doc". After writing up a brief description, we recommend including the following sections.
+![description](https://github.com/jrr997/antd-docs-vscode/blob/dev/description.gif?raw=true)
+
+English | [中文](./README-zh_CN.md)
 
 ## Features
+- Display documentation on hovering over components.
+- Jump from VSCode to the documentation webpage of a specific component.
+- Support for switching documentation versions and languages.
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+## Usage
+1. First-time setup: Requires setting up a `github token`. Open `VSCode Settings --> Extensions --> Antd Docs`, input the `github token`, and then restart VSCode. You can generate a `github token` [here](https://github.com/settings/tokens).
+2. Change document language and version: You can set the document's version and language in `VSCode Settings --> Extensions --> Antd Docs`, requiring a VSCode restart.
+3. Change document version without restarting: Use the shortcut `ctrl + P`, input `>AntdDoc: set`, press enter, input the desired version, and the plugin will immediately update the document.
+    This method only affects the current workspace; other workspaces will adhere to the version set in `VSCode Settings`.
 
-For example if there is an image subfolder under your extension project workspace:
+### Issues
 
-\!\[feature X\]\(images/feature-x.png\)
+1. Why does the plugin require a `github token`?
+   The plugin uses the `github rest api` to access the `antd-design` documentation. Accessing the API requires a `github token` to avoid request limitations that would prevent the plugin from retrieving the complete documentation. You can find GitHub's explanation [here](https://docs.github.com/en/rest/overview/rate-limits-for-the-rest-api?apiVersion=2022-11-28).
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+2. About document versions.
+   Document versions come in two formats:
+   - The format `x.xx.xx` where the plugin fetches the document only once.
+   - Formats like `4.x` and `5.x`, where the plugin fetches the document every time it's activated to ensure the documentation reflects the latest version of `ant-design` 4 or 5.

@@ -1,6 +1,6 @@
 import { NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
-import { ANTD_LINK, DOC_LANG } from '../constant';
+import { ANTD_LINK, DOC_LANG, LATEST_VERSIONS } from '../constant';
 import { DocsLang } from '../types';
 import { parseConfigMap } from '../parse/config';
 
@@ -24,7 +24,7 @@ export function isComponent(name: string) {
   return name[0].toLowerCase() !== name[0];
 }
 
-export function getComponentNameFromOpeningJSXElement(node: t.JSXOpeningElement): string {
+export function getComponentNameFromOpeningOrClosingJSXElement(node: t.JSXOpeningElement | t.JSXClosingElement): string {
   const getName = (node: t.JSXIdentifier | t.JSXMemberExpression, pre = ''): string => {
     if (node.type === 'JSXIdentifier') {
       return pre ? `${pre}.${node.name}` : node.name;
@@ -39,11 +39,28 @@ export function getComponentNameFromOpeningJSXElement(node: t.JSXOpeningElement)
 
 export function validateVersion(version?: string): boolean {
   if (!version) { return false; }
+
+  const latestVersions = Object.values(LATEST_VERSIONS);
+  if (latestVersions.includes(version as typeof latestVersions[number])) { return true; };
+
   let re = /^\d+\.\d+\.\d+$/;
   return re.test(version);
 }
 
-export const getComponentLink = (componentName: string, version: 'v4' | 'v5', lang: DocsLang, anchor = 'api') => {
+export function versionToRef(version: string) {
+  if (version === '3.x') {
+    return '3.x-stable';
+  } else if (version === '4.x') {
+    return '4.x-stable';
+  } else if (version === '5.x') {
+    // TODO: get the latest tag to replace master
+    return "master";
+  } else {
+    return version;
+  }
+}
+
+export const getComponentLink = (componentName: string, version: 'v4' | 'v5', lang: DocsLang, anchor = version === 'v4' ? 'API' : 'api') => {
   // Some components'link are not the same with their name. e.g. 'row'/ 'col' -> 'Grid'
   // And some like form.item should link to form
   const componentNameInUrl = Object.entries(parseConfigMap).find(([_, value]) => {
@@ -62,11 +79,13 @@ export const getUpperCaseName = (componentName: string) => {
 
 const anchorMap = Object.fromEntries(Object.values(parseConfigMap).flatMap(item => item).map(item => [item.name, item?.heading]));
 
-export const getHoverHeader = (componentName: string, version: 'v4' | 'v5', anchor = 'api') => {
-  // TODO: mark down heading which found table successfully, so we can use the correct anchor here.
+export const getHoverHeader = (componentName: string, version: 'v4' | 'v5', anchor = version === 'v4' ? 'API' : 'api') => {
   // Now we fallback to use the anchor 'api' when heading is an array.
   const _anchor = Array.isArray(anchorMap[componentName]) ? undefined : anchorMap[componentName] as string;
-  const formattedAnchor = (_anchor ?? anchor).toLowerCase().replaceAll('.', '');
+  // Some components'link are not the same with their name. e.g. 'row'/ 'col' -> 'Grid'
+  // and in v5 anchor is not the same with v4
+  // row is 'grid-xx#col' in v5, but 'grid-xx#Col' in v4
+  const formattedAnchor = version === 'v4' ? (_anchor ?? anchor).replaceAll('.', '') : (_anchor ?? anchor).toLowerCase().replaceAll('.', '');
   const upperCaseName = getUpperCaseName(componentName);
   const enLink = getComponentLink(componentName, version, DocsLang.EN, formattedAnchor);
   const zhLink = getComponentLink(componentName, version, DocsLang.ZH, formattedAnchor);

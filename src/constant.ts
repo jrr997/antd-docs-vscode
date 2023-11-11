@@ -1,5 +1,3 @@
-export { GITHUB_TOKEN } from './token';
-
 export const ANTD_GITHUB = {
   OWNER: 'ant-design',
   REPO: 'ant-design',
@@ -18,4 +16,10 @@ export const DOC_LANG = {
 export const ANTD_LINK = {
   v4: 'https://4x.ant.design',
   v5: 'https://ant.design',
+} as const;
+
+export const LATEST_VERSIONS = {
+  3: '3.x',
+  4: '4.x',
+  5: '5.x'
 } as const;

@@ -1,11 +1,15 @@
 {
-  "name": "antd-doc",
-  "displayName": "antd doc",
-  "description": "",
-  "version": "0.0.1",
+  "name": "antd-docs",
+  "displayName": "antd docs",
+  "description": "Read Ant Design docs in vscode",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.79.0"
   },
+  "icon": "logo.png",
+  "id": "jrr997",
+  "publisher": "jrr997",
+  "repository": "https://github.com/jrr997/antd-docs-vscode",
   "categories": [
     "Other"
   ],
@@ -23,18 +27,25 @@
       }
     ],
     "configuration": {
-      "type": "object",
-      "title": "Antd Doc",
+      "title": "Antd Docs",
       "properties": {
-        "AntdDoc.docVersion": {
+        "AntdDocs.docVersion": {
           "type": "string",
-          "default": "5.0.0",
-          "description": "The Antd version of your program"
+          "default": "5.x",
+          "description": "The Antd version of your program, please input a valid version, such as '4.0.1'. You can input 3.x, 4.x, 5.x to fetch the latest version of the major version."
         },
-        "AntdDoc.language": {
-          "type": "['en-US', 'zh-CN']",
+        "AntdDocs.language": {
+          "enum": [
+            "en-US",
+            "zh-CN"
+          ],
           "default": "en-US",
-          "description": "docs language"
+          "description": "Docs language, en-US or zh-CN, please restart vscode after change this setting"
+        },
+        "AntdDocs.githubToken": {
+          "type" : "string",
+          "default": "",
+          "description": "This plugin uses github restful API to fetch docs, which has a rate limit of 60 times per hour. If you have a github token, you can set it here to increase the rate limit."
         }
       }
     }

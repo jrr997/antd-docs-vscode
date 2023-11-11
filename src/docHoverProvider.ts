@@ -3,7 +3,7 @@ import * as parser from '@babel/parser';
 import traverse, { Node } from "@babel/traverse";
 import * as vscode from 'vscode';
 import { DocsLang, ParsedComponentProperty, ParsedDocsMap, ParsedDocsState } from './types';
-import { getComponentNameFromJSXAttribute, getComponentNameFromOpeningJSXElement, getHoverHeader, isComponent } from './utils';
+import { getComponentNameFromJSXAttribute, getComponentNameFromOpeningOrClosingJSXElement, getHoverHeader, isComponent } from './utils';
 
 const IsNodeAtPosition = (node: Node, position: Position): boolean => {
   const positionToFind = {
@@ -69,7 +69,7 @@ export default class DocsHoverProvider implements HoverProvider {
       JSXOpeningElement(path) {
         const { node } = path;
         if (IsNodeAtPosition(node.name, position)) {
-          let componentName = getComponentNameFromOpeningJSXElement(node).toLowerCase();
+          let componentName = getComponentNameFromOpeningOrClosingJSXElement(node).toLowerCase();
           if (componentName && antdImportedComponents.has(componentName.split('.')[0])) {
             console.log(componentName);
             const mdTable = parsedDocsMap[componentName][that.language]!.mdTable;
@@ -78,7 +78,20 @@ export default class DocsHoverProvider implements HoverProvider {
             markdownText = hoverHeader + '\n' + mdTable;
           }
         }
-      }
+      },
+      JSXClosingElement(path) {
+        const { node } = path;
+        if (IsNodeAtPosition(node.name, position)) {
+          let componentName = getComponentNameFromOpeningOrClosingJSXElement(node).toLowerCase();
+          if (componentName && antdImportedComponents.has(componentName.split('.')[0])) {
+            console.log(componentName);
+            const mdTable = parsedDocsMap[componentName][that.language]!.mdTable;
+            const version = 'v' + documentData.version[0];
+            const hoverHeader = getHoverHeader(componentName, version as 'v4' | 'v5');
+            markdownText = hoverHeader + '\n' + mdTable;
+          }
+        }
+      },
     });
 
     if (markdownText) {
