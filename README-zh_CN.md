@@ -1,6 +1,6 @@
 `Antd-docs` 是一个VSCode插件，可以让你在 VSCode 中查看 `ant-design` 组件库的文档。
 
-![description](https://github.com/jrr997/antd-docs-vscode/blob/dev/description.gif?raw=true)
+![description](https://github.com/jrr997/antd-docs-vscode/blob/master/description.gif?raw=true)
 
 中文 | [English](./README.md)
 

@@ -1,6 +1,6 @@
 `Antd-docs` is a VSCode plugin that allows you to view the documentation of the `ant-design` component library within VSCode.
 
-![description](https://github.com/jrr997/antd-docs-vscode/blob/dev/description.gif?raw=true)
+![description](https://github.com/jrr997/antd-docs-vscode/blob/master/description.gif?raw=true)
 
 English | [中文](./README-zh_CN.md)
 
