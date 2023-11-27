@@ -1,5 +1,5 @@
 export const ANTD_GITHUB = {
-  OWNER: 'ant-design',
+  OWNER: 'jrr997',
   REPO: 'ant-design',
   EN_DOC_NAME: 'index.en-US.md',
   ZH_DOC_NAME: 'index.zh-CN.md',
