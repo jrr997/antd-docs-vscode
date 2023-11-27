@@ -7,7 +7,10 @@ const getAntdContent = (path: string, token: string, ref?: string) => new Octoki
   owner: ANTD_GITHUB.OWNER,
   repo: ANTD_GITHUB.REPO,
   path,
-  ref
+  ref,
+  headers: {
+    'X-GitHub-Api-Version': '2022-11-28'
+  }
 });
 
 export const getFileContent = async (owner: string, repo: string, path: string, token: string) => {
@@ -16,6 +19,9 @@ export const getFileContent = async (owner: string, repo: string, path: string, 
       owner: owner,
       repo: repo,
       path: path,
+      headers: {
+        'X-GitHub-Api-Version': '2022-11-28'
+      }
     });
     return response.data;
   } catch (error) {
