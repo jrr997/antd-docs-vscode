@@ -71,7 +71,7 @@ export async function activate(context: vscode.ExtensionContext) {
     }
   });
 
-  const provider = vscode.languages.registerHoverProvider(['typescript', 'typescriptreact', 'javascript'], new DocsHoverProvider(context, languageInWorkspace));
+  const provider = vscode.languages.registerHoverProvider(['typescript', 'typescriptreact', 'javascript', 'javascriptreact'], new DocsHoverProvider(context, languageInWorkspace));
 
   context.subscriptions.push(setVersion, provider, listener);
 
