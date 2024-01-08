@@ -2,7 +2,7 @@
   "name": "antd-docs",
   "displayName": "antd docs",
   "description": "Read Ant Design docs in vscode",
-  "version": "0.0.4",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.79.0"
   },
@@ -16,7 +16,8 @@
   "activationEvents": [
     "onLanguage:javascript",
     "onLanguage:javascriptreact",
-    "onLanguage:typescriptreact"
+    "onLanguage:typescriptreact",
+    "onLanguage:typescript"
   ],
   "main": "./dist/extension.js",
   "contributes": {
