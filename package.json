@@ -44,7 +44,7 @@
           "description": "Docs language, en-US or zh-CN, please restart vscode after change this setting"
         },
         "AntdDocs.githubToken": {
-          "type" : "string",
+          "type": "string",
           "default": "",
           "description": "This plugin uses github restful API to fetch docs, which has a rate limit of 60 times per hour. If you have a github token, you can set it here to increase the rate limit."
         }
@@ -84,6 +84,7 @@
   "dependencies": {
     "@babel/parser": "^7.22.5",
     "@babel/traverse": "^7.22.5",
+    "@octokit/graphql": "^7.0.2",
     "@octokit/rest": "^19.0.11",
     "remark-gfm": "^3.0.1",
     "remark-parse": "^10.0.2",
