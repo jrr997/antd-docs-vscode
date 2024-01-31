@@ -14,7 +14,7 @@ English | [中文](./README-zh_CN.md)
   2. Change language: You can select the language of the documentation in `VSCode Settings --> Extensions --> Antd Docs --> Language`, and the change takes effect immediately.
   3. Change version: You can select the version of the documentation in `VSCode Settings --> Extensions --> Antd Docs --> docVersion`, and the change takes effect immediately.
 
-### Changes from plugin version 1.x to 2.0.0
+## Changes from plugin version 1.x to 2.0.0
   1. Out-of-the-box functionality, no longer requiring a `github token`.
   2. Version 2.x only previews the latest documentation for `antd` v4 or v5, while version 1.x could preview documentation for a specific version.
   3. No need to restart VSCode after modifying plugin configurations.
