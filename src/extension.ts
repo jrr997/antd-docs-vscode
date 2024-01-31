@@ -51,7 +51,7 @@ export async function activate(context: vscode.ExtensionContext) {
     const label = inputVersion?.label;
     if (label) {
       config.update('docVersion', label);
-      vscode.window.showInformationMessage(`Version changed! Start to update docs v${inputVersion}`);
+      vscode.window.showInformationMessage(`Version changed! Start to update docs v${label}`);
       const fetchSuccessfully = await fetchAndParseDocs(label);
       if (fetchSuccessfully) {
         vscode.window.showInformationMessage(`Fetch docs v${label} successfully!`);
