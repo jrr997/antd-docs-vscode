@@ -1,5 +1,9 @@
-### 0.0.2 (2023-11-11)
-* Update LICENSE and README.md
+### 2.0.0 (2024-01-31)
+* Don't need `github token` any more.
+* No need to restart VSCode after modifying the configuration.
+
+### 1.0.0 (2024-01-08)
+* Update README.md and LICENSE
 * Support jsx file.
 
 ### 0.0.2 (2023-11-11)

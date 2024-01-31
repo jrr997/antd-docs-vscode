@@ -1,48 +1,8 @@
 import { Octokit } from '@octokit/rest';
-import { ANTD_GITHUB, excludeDirs } from './constant';
-import { DocsLang, DocsMap } from './types';
+import { ANTD_GITHUB, originList } from './constant';
+import { DocsMap } from './types';
 import * as vscode from 'vscode';
-import { graphql } from '@octokit/graphql';
-
-const splitText = '____';
-
-const recoverText = (text: string) => text.replaceAll(splitText, '-');
-
-const getComponentsDocText = async (componentNames: string[], token: string, ref: string) => {
-  const queries = componentNames?.map(componentName => createQuery(componentName, ref));
-  const { repository } = await graphql<{ repository: Record<string, null | { text: string }> }>(
-    `
-query{
-  repository(owner: "${ANTD_GITHUB.OWNER}", name: "${ANTD_GITHUB.REPO}") {
-    ${queries.join('\n')}
-  }
-}
-    `,
-    {
-      headers: {
-        authorization: `token ${token}`,
-      },
-    }
-  );
-  return repository;
-};
-
-const createQuery = (componentName: string, ref: string) => {
-  const zhName = `${componentName.replaceAll('-', splitText)}zh`;
-  const enName = `${componentName.replaceAll('-', splitText)}en`;
-  return `
-      ${zhName}: object(expression: "${ref}:components/${componentName}/${ANTD_GITHUB.ZH_DOC_NAME}") {
-        ... on Blob {
-          text
-        }
-      }
-      ${enName}: object(expression: "${ref}:components/${componentName}/${ANTD_GITHUB.EN_DOC_NAME}") {
-        ... on Blob {
-          text
-        }
-      }
-  `;
-};
+import fetch, { AbortError } from 'node-fetch';
 
 const getAntdContent = (path: string, token: string, ref?: string) => new Octokit({ auth: token }).rest.repos.getContent({
   owner: ANTD_GITHUB.OWNER,
@@ -100,26 +60,35 @@ export const getComponentDirInfos = async (token: string, ref: string) => {
 
 
 
-export const fetchDoc = async (ref: string, token: string) => {
+const fetchDocsImpl = async (ref: string, origin: string) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => {
+    controller.abort();
+  }, 5000);
 
-  let dirInfos = await getComponentDirInfos(token, ref);
-  const componentNames = dirInfos?.map(dirInfo => dirInfo.name).filter(name => !excludeDirs.includes(name));
-  const componentDocsText = await getComponentsDocText(componentNames!, token, ref);
-
-  let docsMap: DocsMap = {};
-  for (let key in componentDocsText) {
-    const componentName = recoverText(key.slice(0, key.length - 2));
-    
-    const lang = key.slice(key.length - 2) === 'zh' ? DocsLang.ZH : DocsLang.EN;
-    const text = componentDocsText[key]?.text;
-    if (!docsMap[componentName]) {
-      docsMap[componentName] = {};
+  try {
+    const response = await fetch(
+      `${origin}/jrr997/actions-for-antd-docs-vscode/${ref}/docsMap.json`,
+      { signal: controller.signal }
+    );
+    const docsMap = await response.json();
+    return docsMap;
+  } catch (e) {
+    if (e instanceof AbortError) {
+      console.log('request was aborted');
+    } else {
+      console.log("fetchDocs error: ", e);
     }
-    docsMap[componentName][lang] = text;
+  } finally {
+    clearTimeout(timeout);
   }
 
-  console.log('======= docsMap ========');
-  console.log(docsMap);
+};
 
-  return docsMap;
+export const fetchDocs = async (ref = 'master') => {
+  const promises = originList.map(origin => fetchDocsImpl(ref, origin));
+  const docsMap = await Promise.race(promises);
+  if (docsMap) {
+    return docsMap as DocsMap;
+  }
 };

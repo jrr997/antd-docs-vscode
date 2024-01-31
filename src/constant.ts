@@ -23,3 +23,8 @@ export const LATEST_VERSIONS = {
   4: '4.x',
   5: '5.x'
 } as const;
+
+export const originList = [
+  "https://raw.githubusercontent.com",
+  "https://raw.gitmirror.com",
+];

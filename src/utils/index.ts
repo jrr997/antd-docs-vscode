@@ -37,26 +37,14 @@ export function getComponentNameFromOpeningOrClosingJSXElement(node: t.JSXOpenin
   return getName(node.name as t.JSXIdentifier | t.JSXMemberExpression);
 }
 
-export function validateVersion(version?: string): boolean {
-  if (!version) { return false; }
-
-  const latestVersions = Object.values(LATEST_VERSIONS);
-  if (latestVersions.includes(version as typeof latestVersions[number])) { return true; };
-
-  let re = /^\d+\.\d+\.\d+$/;
-  return re.test(version);
-}
-
 export function versionToRef(version: string) {
-  if (version === '3.x') {
-    return '3.x-stable';
-  } else if (version === '4.x') {
-    return '4.x-stable';
-  } else if (version === '5.x') {
-    // TODO: get the latest tag to replace master
-    return "master";
+  if (version.startsWith("4")) {
+    return 'output4';
+  } else if (version.startsWith("5") || !version) {
+    return "output";
   } else {
-    return version;
+    // For compatibility
+    return "output";
   }
 }
 
