@@ -260,9 +260,9 @@ export const correctMdLink = (mdString: string, processor: any, prefix: string, 
   links.forEach(link => {
     if (link.url.startsWith('#')) {
       link.url = prefix + link.url;
-    } else if (link.url.startsWith('/components/')) {
+    } else if (link.url.startsWith('/')) {
       let _link = ANTD_LINK[parsedVersion] + link.url;
-      if (lang === 'zh-CN') {
+      if (lang === 'zh-CN' && link.url.startsWith('/components/')) {
         _link = _link.replace(/\/components\/(.*?)\//, '/components/$1-cn/');
       }
       link.url = _link;
