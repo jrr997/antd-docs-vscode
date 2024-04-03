@@ -1,3 +1,6 @@
+### 2.0.1 (2024-04-03)
+* fix: fix link jumping error.
+
 ### 2.0.0 (2024-01-31)
 * Don't need `github token` any more.
 * No need to restart VSCode after modifying the configuration.
