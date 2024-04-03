@@ -1,7 +1,8 @@
 import { Octokit } from '@octokit/rest';
-import { ANTD_GITHUB, excludeDirs } from './constant';
-import { DocsLang, DocsMap } from './types';
+import { ANTD_GITHUB, originList } from './constant';
+import { DocsMap } from './types';
 import * as vscode from 'vscode';
+import fetch, { AbortError } from 'node-fetch';
 
 const getAntdContent = (path: string, token: string, ref?: string) => new Octokit({ auth: token }).rest.repos.getContent({
   owner: ANTD_GITHUB.OWNER,
@@ -31,7 +32,7 @@ export const getFileContent = async (owner: string, repo: string, path: string, 
 
 export const getComponentDirInfos = async (token: string, ref: string) => {
   try {
-    const response = await getAntdContent('/components', token, ref);   
+    const response = await getAntdContent('/components', token, ref);
     const { data } = response;
     if (Array.isArray(data)) {
       const componentDirInfos = data.filter(item => item.type === 'dir');
@@ -59,35 +60,35 @@ export const getComponentDirInfos = async (token: string, ref: string) => {
 
 
 
-export const fetchDoc = async (ref: string, token: string) => {
-  let dirInfos = await getComponentDirInfos(token, ref);
-  const zhPromises = dirInfos
-    ?.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.ZH_DOC_NAME}`, token, ref));
-  const enPromises = dirInfos
-    ?.map(dirInfo => getAntdContent(`${dirInfo.path}/${ANTD_GITHUB.EN_DOC_NAME}`, token, ref));
+const fetchDocsImpl = async (ref: string, origin: string) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => {
+    controller.abort();
+  }, 5000);
+
   try {
-    const res = await Promise.allSettled([...zhPromises!, ...enPromises!]);
-    let docsMap: DocsMap = {};
-    // res.filter((item) => item.status !== 'fulfilled').forEach(item => {
-    //   console.log('fail: ', item);
-    // });
-
-    res.filter((item) => item.status === 'fulfilled')
-      .forEach((item: any) => {
-        const { path, encoding, content, name } = item.value.data;
-        const parsedContent = Buffer.from(content, encoding).toString();
-        const componentName = path.split('/')[1];
-        const lang = name.split('.')[1] as DocsLang;
-        if (!docsMap[componentName]) {
-          docsMap[componentName] = {};
-        }
-        docsMap[componentName][lang] = parsedContent;
-      });
-    console.log(docsMap);
-
+    const response = await fetch(
+      `${origin}/jrr997/actions-for-antd-docs-vscode/${ref}/docsMap.json`,
+      { signal: controller.signal }
+    );
+    const docsMap = await response.json();
     return docsMap;
   } catch (e) {
-    console.log(e);
+    if (e instanceof AbortError) {
+      console.log('request was aborted');
+    } else {
+      console.log("fetchDocs error: ", e);
+    }
+  } finally {
+    clearTimeout(timeout);
+  }
 
+};
+
+export const fetchDocs = async (ref = 'master') => {
+  const promises = originList.map(origin => fetchDocsImpl(ref, origin));
+  const docsMap = await Promise.race(promises);
+  if (docsMap) {
+    return docsMap as DocsMap;
   }
 };

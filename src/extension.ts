@@ -1,9 +1,8 @@
 import * as vscode from 'vscode';
-import { fetchDoc } from './fetchDocs';
+import { fetchDocs } from './fetchDocs';
 import { parseDoc } from './parse/parseDocs';
 import DocsHoverProvider from './docHoverProvider';
-import { ParsedDocsState } from './types';
-import { validateVersion, versionToRef } from './utils';
+import { versionToRef } from './utils';
 
 export async function activate(context: vscode.ExtensionContext) {
   const workspaceState = context.workspaceState;
@@ -17,70 +16,72 @@ export async function activate(context: vscode.ExtensionContext) {
     return;
   }
 
-  const fetchAndParseDocs = async (version: string, token: string) => {
+  const fetchAndParseDocs = async (version: string) => {
     const ref = versionToRef(version);
-    console.log('Fetching Docs!');
-    console.log('docs version: ' + version, ' ref: ' + ref);
-    const docsMap = await fetchDoc(ref, token);
+    console.log('fetchAndParseDocs', ref);
+    
+    if (!ref) {
+      vscode.window.showInformationMessage(`Failed! Version ${version} is invalid, version should be set to "4" or "5".`);
+    }
+
+    const docsMap = await fetchDocs(ref!);
     if (docsMap) {
-      console.log('fetch Doc successfully!');
       const parsedDocs = parseDoc(docsMap, version);
       workspaceState.update('documentData', { parsedDocs, version });
       return true;
     }
   };
 
-  // Fetch docs when github token exists and version is valid
-  const shouldFetch = () => {
-    const githubToken = config.get('githubToken') as string;
-    if (!githubToken) { return false; }
-    // TODO: check the latest version in repo First, then compare to local version to decide whether to fetch 
-    if (versionInWorkspace === '4.x' || versionInWorkspace === '5.x') { return true; }
-    const documentData = workspaceState.get('documentData') as ParsedDocsState;
-    if (!documentData?.parsedDocs || !Object.keys(documentData.parsedDocs).length) { return true; }
-    const { version } = documentData;
-    return validateVersion(versionInWorkspace) && version !== versionInWorkspace;
+  // TODO:
+  const shouldFetch = () => { 
+    return true;
   };
 
   let setVersion = vscode.commands.registerCommand('AntdDoc.setVersion', async () => {
-    const inputVersion = await vscode.window.showInputBox({
-      title: `Antd Doc Version(${versionInWorkspace} currently)`,
-      placeHolder: '4.0.0, 5.6.1...', // TODO: a better placeholder
-    });
-    if (validateVersion(inputVersion)) {
-      config.update('docVersion', inputVersion);
-      vscode.window.showInformationMessage(`Version changed! Start to update docs v${inputVersion}`);
-      // TODO: 闭包可能导致githubToken为空
-      const fetchSuccessfully = await fetchAndParseDocs(inputVersion!, githubToken);
-      if (fetchSuccessfully) {
-        vscode.window.showInformationMessage(`Fetch docs v${inputVersion} fetchSuccessfully!`);
+    const currentVersion = config.get('docVersion') as string;
 
+    const options = [
+      { label: '4', description: currentVersion === '4' ? '(current)' : undefined},
+      { label: '5', description: currentVersion === '5' ? '(current)' : undefined},
+    ];
+
+    const inputVersion = await vscode.window.showQuickPick( options,{
+      placeHolder: 'Select a version',
+    });
+    const label = inputVersion?.label;
+    if (label) {
+      config.update('docVersion', label);
+      vscode.window.showInformationMessage(`Version changed! Start to update docs v${label}`);
+      const fetchSuccessfully = await fetchAndParseDocs(label);
+      if (fetchSuccessfully) {
+        vscode.window.showInformationMessage(`Fetch docs v${label} successfully!`);
       }
     } else {
-      vscode.window.showInformationMessage(`Failed! Version ${inputVersion} is invalid.`);
+      vscode.window.showErrorMessage(`Failed! Version ${label} is invalid.`);
     }
   });
+
+  const  docHoverProvider = new DocsHoverProvider(context, languageInWorkspace!);
+  const provider = vscode.languages.registerHoverProvider(['typescript', 'typescriptreact', 'javascript', 'javascriptreact'], docHoverProvider);
 
   let listener = vscode.workspace.onDidChangeConfiguration(event => {
-    if (event.affectsConfiguration('AntdDocs.githubToken')) {
-      const config = vscode.workspace.getConfiguration('AntdDocs');
-      const newToken = config.get('githubToken') as string;
-      if (shouldFetch()) {
-        fetchAndParseDocs(versionInWorkspace!, newToken);
-      }
+    if (event.affectsConfiguration('AntdDocs.docVersion')) {
+      const version = vscode.workspace.getConfiguration('AntdDocs').get('docVersion') as string;
+      console.log('version listener', version);
+      fetchAndParseDocs(version);
+    }
+    if (event.affectsConfiguration('AntdDocs.language')) {
+      const language = vscode.workspace.getConfiguration('AntdDocs').get('language') as string;
+      docHoverProvider.updateLanguage(language);
+      workspaceState.update('language', language);
     }
   });
-
-  const provider = vscode.languages.registerHoverProvider(['typescript', 'typescriptreact', 'javascript', 'javascriptreact'], new DocsHoverProvider(context, languageInWorkspace));
 
   context.subscriptions.push(setVersion, provider, listener);
 
-  // Fetch after subscriptions since it may take a long time and block pushing subscriptions
-  console.log('versionInWorkspace: ', versionInWorkspace);
   if (versionInWorkspace) {
-    // workspaceState.update('documentData', undefined); // For debugging docs fetching and parsing, please do not remove it.
     if (shouldFetch()) {
-      fetchAndParseDocs(versionInWorkspace, githubToken).catch(err => {
+      fetchAndParseDocs(versionInWorkspace).catch(err => {
         console.log(err);
       });
     }

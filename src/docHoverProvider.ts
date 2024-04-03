@@ -98,6 +98,10 @@ export default class DocsHoverProvider implements HoverProvider {
       return new Hover(markdownText);
     }
   }
+
+  updateLanguage(language: string) {
+    this.language = language === DocsLang.ZH ? language : DocsLang.EN;
+  }
 }
 
 const getPropertyHoverMd = (propertyInfo: ParsedComponentProperty, language: DocsLang): vscode.MarkdownString => {
