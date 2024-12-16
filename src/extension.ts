@@ -10,12 +10,6 @@ export async function activate(context: vscode.ExtensionContext) {
   const versionInWorkspace = config.get('docVersion') as string | undefined;
   const languageInWorkspace = config.get('language') as string | undefined;
 
-  const githubToken = config.get('githubToken') as string;
-  if (!githubToken) {
-    vscode.window.showInformationMessage('Please set your github token in AntdDocs.githubToken');
-    return;
-  }
-
   const fetchAndParseDocs = async (version: string) => {
     const ref = versionToRef(version);
     console.log('fetchAndParseDocs', ref);
