@@ -1,3 +1,6 @@
+### 2.0.2 (2024-12-16)
+* fix: remove github token message.
+
 ### 2.0.1 (2024-04-03)
 * fix: fix link jumping error.
 
