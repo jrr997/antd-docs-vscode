@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 import { DocsLang, ParsedComponentProperty, ParsedDocsMap, ParsedDocsState } from './types';
 import { getComponentNameFromJSXAttribute, getComponentNameFromOpeningOrClosingJSXElement, getHoverHeader, isComponent } from './utils';
 
-const IsNodeAtPosition = (node: Node, position: Position): boolean => {
+const isNodeAtPosition = (node: Node, position: Position): boolean => {
   const positionToFind = {
     line: position.line + 1, // position.line starts from 0
     column: position.character
@@ -52,7 +52,7 @@ export default class DocsHoverProvider implements HoverProvider {
       },
       JSXAttribute(path) {
         const { node } = path;
-        if (IsNodeAtPosition(node, position)) {
+        if (isNodeAtPosition(node, position)) {
           console.log(node);
           
           if (node.name.type === 'JSXIdentifier') {
@@ -68,7 +68,7 @@ export default class DocsHoverProvider implements HoverProvider {
       },
       JSXOpeningElement(path) {
         const { node } = path;
-        if (IsNodeAtPosition(node.name, position)) {
+        if (isNodeAtPosition(node.name, position)) {
           let componentName = getComponentNameFromOpeningOrClosingJSXElement(node).toLowerCase();
           if (componentName && antdImportedComponents.has(componentName.split('.')[0])) {
             console.log(componentName);
@@ -81,7 +81,7 @@ export default class DocsHoverProvider implements HoverProvider {
       },
       JSXClosingElement(path) {
         const { node } = path;
-        if (IsNodeAtPosition(node.name, position)) {
+        if (isNodeAtPosition(node.name, position)) {
           let componentName = getComponentNameFromOpeningOrClosingJSXElement(node).toLowerCase();
           if (componentName && antdImportedComponents.has(componentName.split('.')[0])) {
             console.log(componentName);
