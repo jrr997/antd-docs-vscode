@@ -87,7 +87,7 @@ const fetchDocsImpl = async (ref: string, origin: string) => {
 
 export const fetchDocs = async (ref = 'master') => {
   const promises = originList.map(origin => fetchDocsImpl(ref, origin));
-  const docsMap = await Promise.race(promises);
+  const docsMap = await Promise.any(promises);
   if (docsMap) {
     return docsMap as DocsMap;
   }
