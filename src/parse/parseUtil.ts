@@ -187,11 +187,14 @@ export const tooltipParser: CustomParser = (config, docsMapItem, processor, pend
   for (const [lang, rawDocs] of Object.entries(docsMapItem)) {
     const tree = processor.parse(rawDocs);
     const heading = 'API';
-    const tableNodes = findNodesFromHeadingToTable(heading, tree, 1);
+    const tableNodes = findNodesFromHeadingToTable(heading, tree, 0);
     const [table, commonTable] = tableNodes?.filter(node => node.type === 'table') as Table[];
 
     const tableProperties = parseComponentTableProperties(table.children.slice(1), processor);
-    const commonTableProperties = parseComponentTableProperties(commonTable.children.slice(1), processor);
+    // const commonTableProperties = parseComponentTableProperties(commonTable.children.slice(1), processor);
+    // TODO: commonTableProperties has been moved to a new file.
+    // We should get the file content first on the server side and then parse it.
+    const commonTableProperties = {};
 
     // commonTableProperties is shared with Tooltip, Popover, Popconfirm.
     // Since Popover and Popconfirm are parsed before Tooltip, we can set common properties from Popover and Popconfirm hear.
