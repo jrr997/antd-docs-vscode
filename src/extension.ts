@@ -32,13 +32,12 @@ export async function activate(context: vscode.ExtensionContext) {
   };
 
   let setVersion = vscode.commands.registerCommand('AntdDoc.setVersion', async () => {
-    const currentVersion = config.get('docVersion') as string;
+    const currentVersion = vscode.workspace.getConfiguration('AntdDocs').get('docVersion') as string;
 
     const options = [
       { label: '4', description: currentVersion === '4' ? '(current)' : undefined},
       { label: '5', description: currentVersion === '5' ? '(current)' : undefined},
     ];
-
     const inputVersion = await vscode.window.showQuickPick( options,{
       placeHolder: 'Select a version',
     });
