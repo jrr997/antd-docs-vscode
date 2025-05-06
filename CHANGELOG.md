@@ -1,3 +1,10 @@
+### 2.0.4 (2024-05-06)
+* fix: improve tooltip/popconfirm/popover parsing.
+
+### 2.0.3 (2025-05-01)
+* fix: fix options error when switching version.
+* fix: fix tooltip parsing error.
+
 ### 2.0.2 (2024-12-16)
 * fix: remove github token message.
 
