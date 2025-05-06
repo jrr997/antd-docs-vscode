@@ -212,10 +212,10 @@ export const tooltipParser: CustomParser = (config, docsMapItem, processor, pend
     } else {
       // v5+
       filteredNodes = findNodesFromHeadingToTable(heading, tree, 0);
-      table = filteredNodes?.find(node => node.type === 'table');
+      table = filteredNodes?.find(node => node.type === 'table') as Table;
 
       if (docsMap?.['tooltipShared']?.[lang as DocsLang]) {
-        sharedTable = processor.parse(docsMap['tooltipShared'][lang as DocsLang]).children.find(node => node.type === 'table');
+        sharedTable = processor.parse(docsMap['tooltipShared'][lang as DocsLang]).children.find(node => node.type === 'table') as Table;
       }
     }
 
