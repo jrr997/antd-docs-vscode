@@ -13,7 +13,7 @@ export const parseDoc = (docsMap: DocsMap, version: string) => {
     const parseConfigs = getComponentParseConfig(name);
     for (const config of parseConfigs) {
       const parser = config?.parser as CustomParser ?? parseComponent;
-      const parsedComponent = parser(config, value, processor, parsedDocsMap);
+      const parsedComponent = parser(config, value, processor, parsedDocsMap, docsMap);
 
       for (let lang in parsedComponent.value) {
         const parsedComponentValue = parsedComponent.value[lang as DocsLang];
