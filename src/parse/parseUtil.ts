@@ -1,10 +1,10 @@
 import { DocsLang, DocsMap, ParsedComponentProperty, ParsedDocsMap, ParsedComponent, PendingComponent, CustomParser } from '../types';
 import { visit } from 'unist-util-visit';
-import { Heading, Link, Parent, Root, Table, TableRow, Text } from "mdast";
+import { Heading, Link, Parent, Root, Table, TableCell, TableRow, Text } from "mdast";
 import { ANTD_LINK, DOC_LANG } from "../constant";
-import { ComponentParseConfig, CommonParseConfig } from '../types';
+import { ComponentParseConfig } from '../types';
 import { selectAll } from 'unist-util-select';
-import { TProcessor } from './processor';
+import {  TProcessor } from './processor';
 
 export const findHeadingAndTable = (heading: string | string[], root: Root, tableIndex = 0): [Table | null, Heading | null, Parent | null] => {
   let foundHeading: Heading | null = null;
@@ -35,7 +35,7 @@ export const findNodesFromHeadingToTable = (heading: string | string[], root: Ro
 };
 
 // Parse rawDocs for most components. Some components are special and should implement their own parser. 
-export const parseComponent = ({ heading, name: componentName, index: tableIndex = 0, merge }: CommonParseConfig & { heading: string | string[] }, docsMapItem: DocsMap[string], processor: TProcessor, parsedDocsMap: ParsedDocsMap): PendingComponent => {
+export const parseComponent = ({ heading, name: componentName, index: tableIndex = 0, merge }: ComponentParseConfig & { heading: string | string[] }, docsMapItem: DocsMap[string], processor: TProcessor, parsedDocsMap: ParsedDocsMap): PendingComponent => {
   const formattedComponentName = componentName.replaceAll('-', '');
   const pendingComponent: PendingComponent = {
     name: formattedComponentName,
@@ -70,9 +70,22 @@ export const parseComponent = ({ heading, name: componentName, index: tableIndex
   return pendingComponent;
 };
 
+const getTableCellValue = (cell: TableCell) => {
+  if (cell.children.length === 0) {
+    return '';
+  }
+  const node = cell.children[0];
+  if (node.type === 'delete') {
+    return (node.children[0] as Text).value;
+  } else if (node.type === 'text') {
+    return (node as Text).value;
+  }
+  throw new Error(`GetTableCellValue Error: unsupported node type: ${node.type}`);
+};
+
 export const parseComponentTableProperties = (tableRows: TableRow[], processor: any): Record<string, ParsedComponentProperty> => {
   const propertyMap = tableRows.reduce<Record<string, ParsedComponentProperty>>((obj, row) => {
-    const property = (row.children[0].children[0] as Text).value;
+    const property = getTableCellValue(row.children[0] as TableCell);
     const [description, type, _default, version] = row.children.slice(1).map(tableCell => {
       return processor.stringify(tableCell as unknown as Root);
     });
@@ -175,7 +188,7 @@ export const timePickerParser: CustomParser = (config, docsMapItem, processor, p
 
 };
 
-export const tooltipParser: CustomParser = (config, docsMapItem, processor, pendingDocsMap) => {
+export const tooltipParser: CustomParser = (config, docsMapItem, processor, pendingDocsMap, docsMap) => {
   const pendingComponent: PendingComponent = {
     name: config.name,
     value: {
@@ -187,35 +200,54 @@ export const tooltipParser: CustomParser = (config, docsMapItem, processor, pend
   for (const [lang, rawDocs] of Object.entries(docsMapItem)) {
     const tree = processor.parse(rawDocs);
     const heading = 'API';
-    const tableNodes = findNodesFromHeadingToTable(heading, tree, 0);
-    const [table, commonTable] = tableNodes?.filter(node => node.type === 'table') as Table[];
 
-    const tableProperties = parseComponentTableProperties(table.children.slice(1), processor);
-    // const commonTableProperties = parseComponentTableProperties(commonTable.children.slice(1), processor);
-    // TODO: commonTableProperties has been moved to a new file.
-    // We should get the file content first on the server side and then parse it.
-    const commonTableProperties = {};
+    let table: Table | undefined;
+    let sharedTable: Table | undefined;
 
-    // commonTableProperties is shared with Tooltip, Popover, Popconfirm.
+    let filteredNodes =  findNodesFromHeadingToTable(heading, tree, 1);
+
+    if (filteredNodes) {
+      // v4
+       [table, sharedTable] = filteredNodes?.filter(node => node.type === 'table') as Table[];
+    } else {
+      // v5+
+      filteredNodes = findNodesFromHeadingToTable(heading, tree, 0);
+      table = filteredNodes?.find(node => node.type === 'table');
+
+      if (docsMap?.['tooltipShared']?.[lang as DocsLang]) {
+        sharedTable = processor.parse(docsMap['tooltipShared'][lang as DocsLang]).children.find(node => node.type === 'table');
+      }
+    }
+
+
+    const tableProperties = parseComponentTableProperties(table!.children.slice(1), processor);
+    let sharedTableProperties = sharedTable ? parseComponentTableProperties(sharedTable.children.slice(1), processor) : {};
+
+    // sharedTableProperties is shared with Tooltip, Popover, Popconfirm.
     // Since Popover and Popconfirm are parsed before Tooltip, we can set common properties from Popover and Popconfirm hear.
     const currentPopconfirmProperties = pendingDocsMap?.['popover']?.[lang as DocsLang]?.properties;
     const currentPopoverProperties = pendingDocsMap?.['popconfirm']?.[lang as DocsLang]?.properties;
-    if (currentPopconfirmProperties && Object.keys(currentPopconfirmProperties).length < Object.keys(commonTableProperties).length) {
-      Object.assign(currentPopconfirmProperties, commonTableProperties);
+    if (currentPopconfirmProperties) {
+      Object.assign(currentPopconfirmProperties, sharedTableProperties);
     }
-    if (currentPopoverProperties && Object.keys(currentPopoverProperties).length < Object.keys(commonTableProperties).length) {
-      Object.assign(currentPopoverProperties, commonTableProperties);
+    if (currentPopoverProperties) {
+      Object.assign(currentPopoverProperties, sharedTableProperties);
     }
 
-    const mergedProperties = {
-      ...commonTableProperties,
-      ...tableProperties,
-    };
-
+    const sharedTableString = sharedTable ? '\n以下是tooltip、popover、popconfirm的公共属性\n' + processor.stringify({ type: 'root', children: [sharedTable] }) : '';
     pendingComponent.value[lang as DocsLang] = {
-      mdTable: processor.stringify({ type: 'root', children: tableNodes! }),
-      properties: mergedProperties,
+      mdTable: processor.stringify({ type: 'root', children: [table].filter(Boolean) as Table[] }) + sharedTableString,
+      properties: {
+      ...sharedTableProperties,
+      ...tableProperties,
+    },
     };
+    if (pendingDocsMap?.['popover']?.[lang as DocsLang]?.mdTable) {
+      pendingDocsMap['popover'][lang as DocsLang]!.mdTable += sharedTableString;
+    }
+    if (pendingDocsMap?.['popconfirm']?.[lang as DocsLang]?.mdTable) {
+      pendingDocsMap['popconfirm'][lang as DocsLang]!.mdTable += sharedTableString;
+    }
   }
 
   return pendingComponent;

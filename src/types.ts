@@ -1,4 +1,3 @@
-import { Root } from "mdast";
 import { TProcessor } from './parse/processor';
 
 export enum DocsLang  {
@@ -60,4 +59,4 @@ export interface CustomParseConfig {
   parser: CustomParser; // md heading text before target table
 }
 
-export type CustomParser = (config: ComponentParseConfig, docsMapItem: DocsMap[string], processor: TProcessor, parsingDocsMap?: ParsedDocsMap) => PendingComponent;
+export type CustomParser = (config: ComponentParseConfig, docsMapItem: DocsMap[string], processor: TProcessor, parsingDocsMap?: ParsedDocsMap, docsMap?: DocsMap) => PendingComponent;
